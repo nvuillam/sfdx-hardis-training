@@ -8,8 +8,8 @@
 # which is a shortcut for throwaway training orgs only.
 # Level 3 lab 1 replaces it with a proper External Client App and JWT.
 
-targetUsername: ""
-instanceUrl: ""
+targetUsername: "veurtio+demo.73193ee31bf8@agentforce.com"
+instanceUrl: "https://login.salesforce.com"
 
 # Level 3 lab 0 adds "uat" here, once uat becomes a major branch.
 mergeTargets: []
