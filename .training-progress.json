@@ -1,0 +1,15 @@
+{
+  "receipts": [
+    {
+      "id": "1-00",
+      "line": "LAB 1-00 OK  handle=nvuillam  commit=efbd545  2026-09-15T23:51Z",
+      "at": "2026-09-15T23:51:18.010Z"
+    },
+    {
+      "id": "1-01",
+      "line": "LAB 1-01 OK  handle=nvuillam  commit=efbd545  2026-09-15T23:51Z",
+      "at": "2026-09-15T23:51:18.011Z"
+    }
+  ],
+  "orgs": {}
+}
