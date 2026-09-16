@@ -67,10 +67,10 @@ what it will do and in which org.
 
 **Read it before merging.** Two things to look for:
 
-| What you see | What it means for you |
-|---|---|
+| What you see      | What it means for you                                                                                   |
+|-------------------|---------------------------------------------------------------------------------------------------------|
 | A **manual step** | Somebody has to click something in UAT. That somebody is you, and it will not happen unless you plan it |
-| A **data import** | Records will be written to UAT. Testers may have their own records there |
+| A **data import** | Records will be written to UAT. Testers may have their own records there                                |
 
 The actions are read-only in a promotion: you cannot edit a contributor's action from here, because
 it belongs to their Pull Request and to every org after this one. If one is wrong, it is fixed in a
@@ -97,8 +97,13 @@ a piece of reference data.
 
 ### 6. Generate the release notes
 
-In **Commands > CI/CD (misc)**, run **Generate Release Notes**, between the previous `uat` state and
-the new one.
+Open the **DevOps Pipeline** panel and click the `uat` column. At the bottom of the branch window,
+click **Generate Promotion Notes for uat**: it covers the promotion you have just merged.
+
+The button is named after what the branch is. `uat` still merges into `main`, so what arrived there
+is a promotion. On a branch with no merge target, `main`, the same button reads **Generate Release
+Notes for Latest Release in main**, and **Generate Release Notes for** the go-live you choose in the
+selector at the top of the window.
 
 You get a markdown document listing the Pull Requests, their authors, their stories and the manual
 steps, generated from the merge history rather than from anybody's memory.

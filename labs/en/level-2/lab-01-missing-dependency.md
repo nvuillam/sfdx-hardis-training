@@ -50,23 +50,23 @@ This lab is about the gap between "it exists in my org" and "it is in the packag
 First, the field the flow needs so it does not warn twice. In `helios-dev`,
 **Setup > Object Manager > Installation > Fields & Relationships > New**:
 
-| Setting | Value |
-|---|---|
-| Data Type | **Checkbox** |
-| Field Label | `Crew Warning Sent` |
-| Field Name | `Crew_Warning_Sent__c` |
-| Default Value | Unchecked |
+| Setting       | Value                  |
+|---------------|------------------------|
+| Data Type     | **Checkbox**           |
+| Field Label   | `Crew Warning Sent`    |
+| Field Name    | `Crew_Warning_Sent__c` |
+| Default Value | Unchecked              |
 
 Then the flow. **Setup > Flows > New Flow > Record-Triggered Flow**:
 
-| Setting | Value |
-|---|---|
-| Object | `Installation` |
-| Trigger | A record is created or updated |
+| Setting          | Value                                                         |
+|------------------|---------------------------------------------------------------|
+| Object           | `Installation`                                                |
+| Trigger          | A record is created or updated                                |
 | Entry conditions | `Crew Size` is not null **and** `Panels Required` is not null |
-| Optimize for | Actions and Related Records |
-| Flow Label | `Installation Crew Warning` |
-| Flow API Name | `Installation_Crew_Warning` |
+| Optimize for     | Actions and Related Records                                   |
+| Flow Label       | `Installation Crew Warning`                                   |
+| Flow API Name    | `Installation_Crew_Warning`                                   |
 
 Inside, add a **Decision** named `Crew Too Small` whose outcome condition is a
 formula:
@@ -218,4 +218,4 @@ Welcome page > **Training** > **Check my work**, then pick level 2 and lab 1.
 - [Solve deployment errors](https://sfdx-hardis.cloudity.com/salesforce-devops-solve-deployment-errors/)
 - [Source retrieve issues](https://sfdx-hardis.cloudity.com/salesforce-devops-retrieve/)
 
-[Next: Lab 2 - US-024, the field cannot be required yet](lab-02-deployment-actions-apex.md){ .md-button .md-button--primary }
+[Next: Lab 2 - US-024, green deployment, broken records](lab-02-deployment-actions-apex.md){ .md-button .md-button--primary }

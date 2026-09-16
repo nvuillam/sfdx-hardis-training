@@ -58,7 +58,8 @@ pre-authorised user, no password anywhere, and revocation by deleting one app.
 
 ### 1. Run the configuration command for integration
 
-In **Commands > CI/CD (advanced)**, click **Configure Org CI Authentication**.
+In **Commands > Setup Configuration**, click **Configure Org CI authentication**. The same command
+sits in the settings menu of the **DevOps Pipeline** panel, as **Add/Configure Org**.
 
 ![A sfdx-hardis command asking its questions in the extension](../../_assets/vscode/command-runner-question.png)
 
@@ -74,12 +75,12 @@ Let it run. It takes a couple of minutes.
 
 The command wrote several things, and you should look at each one:
 
-| What | Where | What it is |
-|---|---|---|
-| A certificate and key pair | `config/branches/.jwt/integration.key` (encrypted) and a `.crt` | The credential itself |
-| An External Client App definition | in the org, created for you | What Salesforce authenticates against |
-| Branch configuration | `config/branches/.sfdx-hardis.integration.yml` | `targetUsername`, `instanceUrl`, and the app's consumer key |
-| Two values to store as secrets | printed in the terminal | `SFDX_CLIENT_ID_INTEGRATION` and `SFDX_CLIENT_KEY_INTEGRATION` |
+| What                              | Where                                                           | What it is                                                     |
+|-----------------------------------|-----------------------------------------------------------------|----------------------------------------------------------------|
+| A certificate and key pair        | `config/branches/.jwt/integration.key` (encrypted) and a `.crt` | The credential itself                                          |
+| An External Client App definition | in the org, created for you                                     | What Salesforce authenticates against                          |
+| Branch configuration              | `config/branches/.sfdx-hardis.integration.yml`                  | `targetUsername`, `instanceUrl`, and the app's consumer key    |
+| Two values to store as secrets    | printed in the terminal                                         | `SFDX_CLIENT_ID_INTEGRATION` and `SFDX_CLIENT_KEY_INTEGRATION` |
 
 The private key committed to the repository is **encrypted**, with the passphrase held as
 `SFDX_CLIENT_KEY_INTEGRATION`. The repository alone is not enough to authenticate, which is what
@@ -89,10 +90,10 @@ makes committing it acceptable.
 
 In your fork: **Settings > Secrets and variables > Actions > New repository secret**, twice:
 
-| Name | Value |
-|---|---|
-| `SFDX_CLIENT_ID_INTEGRATION` | the consumer key the command printed |
-| `SFDX_CLIENT_KEY_INTEGRATION` | the passphrase the command printed |
+| Name                          | Value                                |
+|-------------------------------|--------------------------------------|
+| `SFDX_CLIENT_ID_INTEGRATION`  | the consumer key the command printed |
+| `SFDX_CLIENT_KEY_INTEGRATION` | the passphrase the command printed   |
 
 The `<ALIAS>` suffix is **the branch name in upper case**. That is the entire convention, and it is
 why the names are not arbitrary.

@@ -63,10 +63,10 @@ Title it plainly:
 When the check finishes, read the sfdx-hardis comment the way Lab 2 taught, and add two questions
 that only apply to production:
 
-| Question | Where to look |
-|---|---|
-| **Does it delete anything?** | The destructive changes section. A deletion in production is permanent and takes data with it |
-| **How long will it take?** | The check duration is a reasonable estimate. If it is 40 minutes, that is 40 minutes during which the org is being modified |
+| Question                     | Where to look                                                                                                               |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| **Does it delete anything?** | The destructive changes section. A deletion in production is permanent and takes data with it                               |
+| **How long will it take?**   | The check duration is a reasonable estimate. If it is 40 minutes, that is 40 minutes during which the org is being modified |
 
 If the destructive changes section is not empty and you were not expecting it, **stop**. Find out
 what it is and who intended it. That is not being careful, that is the job.
@@ -96,16 +96,16 @@ feature failing. It is an old one.
 You have shipped. The question a release manager gets asked next is "how are we doing", and it
 deserves a better answer than a feeling.
 
-In **Commands > CI/CD (misc)**, run **Generate DORA report**, against `helios-prod`.
+Open the **DevOps Pipeline** panel and click **Generate DORA Metrics Report**.
 
 The four metrics, and what they mean here:
 
-| Metric | What it measures | What good looks like |
-|---|---|---|
-| **Deployment frequency** | How often you release to production | Weekly is fine. Quarterly means every release is enormous and therefore risky |
-| **Lead time for changes** | Merge into `integration`, to live in production | Days, not weeks. A long lead time usually means work sits in UAT waiting |
-| **Change failure rate** | Releases needing a fix afterwards | Below 15%. Above that, the check is not catching what it should |
-| **Time to restore** | Incident to fix live | Hours. This is the number Lab 7 is about |
+| Metric                    | What it measures                                | What good looks like                                                          |
+|---------------------------|-------------------------------------------------|-------------------------------------------------------------------------------|
+| **Deployment frequency**  | How often you release to production             | Weekly is fine. Quarterly means every release is enormous and therefore risky |
+| **Lead time for changes** | Merge into `integration`, to live in production | Days, not weeks. A long lead time usually means work sits in UAT waiting      |
+| **Change failure rate**   | Releases needing a fix afterwards               | Below 15%. Above that, the check is not catching what it should               |
+| **Time to restore**       | Incident to fix live                            | Hours. This is the number Lab 7 is about                                      |
 
 The report covers the releases you just made **plus the deployment history seeded into
 `helios-prod`**, so there is a curve to read rather than a single point.

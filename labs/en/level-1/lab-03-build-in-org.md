@@ -5,7 +5,7 @@ lab: 3
 lang: en
 source_rev: ""
 screenshots:
-  - vscode/orgs-manager
+  - annotated/vscode/orgs-manager
 depends_on:
   commands: []
   flags: []
@@ -36,9 +36,11 @@ your own org, never in the shared one.
 
 ### 1. Open your org
 
-In **Orgs Manager**, find `helios-dev` and click **Open**.
+In **Orgs Manager**, find `helios-dev` by its alias **(2)**, check that it still says **Connected**
+**(3)**, and open it from the actions at the end of its row. If it is not connected any more,
+**Add Org** **(1)** puts it back.
 
-![Orgs Manager, where you open the org you are working in](../../_assets/vscode/orgs-manager.png)
+![The Orgs Manager table, with the alias and connection state of each org](../../_assets/annotated/vscode/orgs-manager.png)
 
 Your browser opens the org, already logged in. No password, no login page: the extension used the
 credential you stored in Lab 0.
@@ -50,16 +52,16 @@ difference between "the org I meant" and "the org that happened to be open in th
 
 In Salesforce: **Setup > Object Manager > Installation > Fields & Relationships > New**.
 
-| Setting | Value |
-|---|---|
-| Data Type | **Number** |
-| Field Label | `Panels Required` |
-| Length | 4 |
-| Decimal Places | 0 |
-| Field Name | `Panels_Required__c` (Salesforce fills this from the label) |
-| Description | `How many panels the crew has to load for this installation.` |
-| Help Text | `Ask the planner if this is empty.` |
-| Required | **no** |
+| Setting        | Value                                                         |
+|----------------|---------------------------------------------------------------|
+| Data Type      | **Number**                                                    |
+| Field Label    | `Panels Required`                                             |
+| Length         | 4                                                             |
+| Decimal Places | 0                                                             |
+| Field Name     | `Panels_Required__c` (Salesforce fills this from the label)   |
+| Description    | `How many panels the crew has to load for this installation.` |
+| Help Text      | `Ask the planner if this is empty.`                           |
+| Required       | **no**                                                        |
 
 On the field-level security screen, leave every profile unticked and click **Next**. You are going
 to grant this through a permission set, not a profile, and Level 2 lab 5 is about why that

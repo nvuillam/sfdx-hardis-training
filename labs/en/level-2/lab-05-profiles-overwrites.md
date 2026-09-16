@@ -110,17 +110,17 @@ Now check `helios-integration`. The permission is there.
 
 ### 6. Look at the other protection while you are here
 
-Open the **DevOps Pipeline** panel, then the project **Settings**.
+Open the **DevOps Pipeline** panel, then **Pipeline Settings** in the gear menu.
 
 ![Project configuration in the DevOps Pipeline panel](../../_assets/vscode/pipeline-config.png)
 
 Two settings on this screen do related jobs, and it is worth knowing which is which:
 
-| Setting | What it protects against |
-|---|---|
-| `autoCleanTypes: minimizeProfiles` | A Profile carrying permissions that belong on a Permission Set |
-| `autoRemoveUserPermissions` | Specific user permissions that must never travel between orgs at all, whatever carries them |
-| `packageNoOverwritePath` | Components that exist in the target org and must never be overwritten by a deployment, listed in `manifest/package-no-overwrite.xml` |
+| Setting                            | What it protects against                                                                                                             |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `autoCleanTypes: minimizeProfiles` | A Profile carrying permissions that belong on a Permission Set                                                                       |
+| `autoRemoveUserPermissions`        | Specific user permissions that must never travel between orgs at all, whatever carries them                                          |
+| `packageNoOverwritePath`           | Components that exist in the target org and must never be overwritten by a deployment, listed in `manifest/package-no-overwrite.xml` |
 
 The third one is the overwrite manager, and it is the one to reach for when a component is
 deliberately different in each org: a named credential pointing at a different endpoint, a custom
@@ -138,15 +138,27 @@ In `MY-PIPELINE.md`, under Level 2, add a line saying what you learned. Somethin
 <details markdown="1"><summary>Under the hood: what cleaning actually did to the file</summary>
 
 `hardis:work:save` retrieved the Profile, then ran the cleaning pass before committing. For
-`minimizeProfiles` it rewrote the Profile XML, keeping only:
+`minimizeProfiles` it rewrote the Profile XML.
 
-- `loginHours`, `loginIpRanges`
-- `layoutAssignments`
-- `recordTypeVisibilities` marked as default
-- `custom`, `userLicense`, and the identity of the Profile
+Whole sections are deleted, because a Permission Set can carry all of them:
 
-and removing every `fieldPermissions`, `objectPermissions`, `classAccesses`, `pageAccesses`,
-`tabVisibilities` and `userPermissions` entry.
+`agentAccesses`, `classAccesses`, `customMetadataTypeAccesses`, `customPermissions`,
+`externalDataSourceAccesses`, `fieldPermissions`, `flowAccesses`, `objectPermissions`,
+`pageAccesses`, `ServicePresenceStatusAccesses`.
+
+Three sections are thinned rather than deleted, keeping only the entries a Permission Set cannot
+express:
+
+| Section                   | What survives                                         |
+|---------------------------|-------------------------------------------------------|
+| `recordTypeVisibilities`  | only the entries marked `default` (or `personAccountDefault`) |
+| `applicationVisibilities` | only the default app, and apps explicitly hidden (`visible` false) |
+| `userPermissions`         | only permissions explicitly turned **off**, plus everything on the Admin profile |
+
+And some sections are never touched, because nothing else can hold them: `loginHours`,
+`loginIpRanges`, `layoutAssignments`, `tabVisibilities`, `custom`, `userLicense`.
+
+So a Profile still does a job in this pipeline. It is just a much smaller one.
 
 Nothing was removed from your org. The cleaning changes **what the repository carries**, never what
 Salesforce holds. Your admin-style grant is still in `helios-dev`, which is exactly why the lab

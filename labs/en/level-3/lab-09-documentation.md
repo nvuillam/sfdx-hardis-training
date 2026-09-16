@@ -55,12 +55,12 @@ It takes a few minutes on a small project like Helios.
 
 Four kinds of page, and they are worth knowing apart:
 
-| Page | What it contains | Who reads it |
-|---|---|---|
-| **Object pages** | Every field with its type, description and help text, the validation rules, the record types, the relationships | An admin asked to change something |
-| **Flow pages** | A readable diagram of each flow, plus its entry conditions and elements | Anybody who has to understand automation without opening the Flow Builder |
-| **Apex pages** | Classes, their methods, their ApexDoc | A developer |
-| **Package and profile pages** | What is installed, what the permission sets grant | An audit |
+| Page                          | What it contains                                                                                                | Who reads it                                                              |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| **Object pages**              | Every field with its type, description and help text, the validation rules, the record types, the relationships | An admin asked to change something                                        |
+| **Flow pages**                | A readable diagram of each flow, plus its entry conditions and elements                                         | Anybody who has to understand automation without opening the Flow Builder |
+| **Apex pages**                | Classes, their methods, their ApexDoc                                                                           | A developer                                                               |
+| **Package and profile pages** | What is installed, what the permission sets grant                                                               | An audit                                                                  |
 
 Open `docs/objects/Installation__c.md`. Every field you and your teammates created across three
 levels is there, with the descriptions you wrote in Setup.
@@ -95,11 +95,13 @@ exists at the end of a level rather than at the start.
 
 ### 6. Publish it
 
-Two options, both in the panel:
+The **Deploy Documentation** section of the panel offers two targets:
 
-- **Publish to the org** as a Salesforce site or static resource, so it is reachable from inside
-  Salesforce
-- **Publish as a static site**, the way the sfdx-hardis documentation itself is published
+- **Deploy to Salesforce** builds the HTML and uploads it as a static resource, with a Visualforce
+  page and a custom tab, so the documentation is reachable from inside Salesforce. It is capped by
+  the 5 MB static resource limit, so it suits a small project
+- **Deploy to Cloudflare Pages** publishes it as a site, the way the sfdx-hardis documentation
+  itself is published
 
 For this lab, generate and commit. Publishing is a project decision.
 

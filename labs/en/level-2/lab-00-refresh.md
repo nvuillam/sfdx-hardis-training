@@ -48,7 +48,8 @@ That list, not your memory, is what tells you whether a refresh is needed.
 
 ### 2. Open Backpromote
 
-On the Welcome page, or in **Commands > CI/CD (advanced)**, click **Backpromote**.
+In **Commands > CI/CD (advanced)**, click **Backpromote to your dev sandbox (Beta)**. The same panel
+opens from the **Backpromote (Beta)** card in the **DevOps Pipeline** panel.
 
 ![The Backpromote panel](../../_assets/vscode/backpromote.png)
 
@@ -64,19 +65,19 @@ The panel shows what differs between `integration` and your org, item by item.
 
 Go through the list rather than clicking "all":
 
-| What you see | What to do |
-|---|---|
-| Metadata from the three merged stories | **Take it.** That is the whole point |
+| What you see                                         | What to do                                                        |
+|------------------------------------------------------|-------------------------------------------------------------------|
+| Metadata from the three merged stories               | **Take it.** That is the whole point                              |
 | Something you are half way through building yourself | **Leave it.** A backpromote would overwrite your work in progress |
-| Something you do not recognise at all | **Take it.** If it is on `integration`, it is the team's truth |
+| Something you do not recognise at all                | **Take it.** If it is on `integration`, it is the team's truth    |
 
 The rule when you hesitate: `integration` wins. It is the shared reality, and your org is a copy of
 it that you are allowed to modify temporarily.
 
 ### 4. Run it and read the result
 
-Click **Backpromote**. The panel deploys the selected items into your org and reports each one, with
-the deployment actions the merged stories declared.
+Click **Backpromote to helios-dev**. The panel deploys the selected items into your org and reports
+each one, with the deployment actions the merged stories declared.
 
 <details markdown="1"><summary>Under the hood: what Backpromote just did</summary>
 

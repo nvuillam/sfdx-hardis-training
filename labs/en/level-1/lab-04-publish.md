@@ -5,7 +5,7 @@ lab: 4
 lang: en
 source_rev: ""
 screenshots:
-  - vscode/devops-pipeline
+  - annotated/vscode/work-save-package-xml
 depends_on:
   commands: [hardis:work:save]
   flags: []
@@ -38,7 +38,8 @@ Go slowly here once, and every following story takes five minutes.
 
 ### 1. Start the publish
 
-On the Welcome page, or in **Commands > CI/CD (simple)**, click **Save / Publish User Story**.
+In the **DevOps Pipeline** panel, click the **Save / Publish** card, or in
+**Commands > CI/CD (simple)**, click **Save / Publish User Story**.
 
 The command does a fair amount before asking you anything: it lists what changed in your org since
 the branch started, and compares it with what is in the repository.
@@ -80,7 +81,12 @@ This becomes the commit message and the body of your Pull Request.
 
 ### 4. Read the manifest before you push
 
-Open `manifest/package.xml` in VS Code, or click the **package.xml** entry in the panel.
+Open `manifest/package.xml` in VS Code, or open the **Deployment Packages** menu at the top of the
+DevOps Pipeline panel and choose **Package XML**. The command hands it to you as well, as the
+**Git Delta package.xml** report at the bottom of its own panel **(2)**, with the number of
+components it holds.
+
+![The Save / Publish command waiting for an answer, with the package.xml report at the bottom](../../_assets/annotated/vscode/work-save-package-xml.png)
 
 It should say something close to:
 
@@ -152,8 +158,9 @@ Every one of those steps is configuration, not magic. Everything it did is in
 
 ### 6. Push
 
-If the command did not push (it asks), open the **Source Control** panel and click
-**Publish Branch**.
+The command asks before it pushes: that is the question marked **(1)** in the picture at step 4.
+Answer **Yes** and the branch goes to your fork. If you answered **No**, open the **Source Control**
+panel and click **Publish Branch**.
 
 ## What you should see
 

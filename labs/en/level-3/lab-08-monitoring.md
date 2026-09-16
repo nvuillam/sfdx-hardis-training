@@ -45,20 +45,20 @@ Monitoring is the part of the release manager job that happens when nothing is b
 `sf hardis:org:configure:monitoring` creates a **second, separate repository**. That surprises
 people, so here is why, and it is the same reason real projects do it:
 
-| Reason | Detail |
-|---|---|
+| Reason                | Detail                                                                                                                         |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | Different permissions | Monitoring holds credentials for production. Every contributor has access to the source repository, and does not need this one |
-| Different rhythm | Monitoring commits every night. Mixing that history with your source history makes both unreadable |
-| Different content | Monitoring stores nightly org backups. It grows, and it should not grow inside the repository people clone every day |
+| Different rhythm      | Monitoring commits every night. Mixing that history with your source history makes both unreadable                             |
+| Different content     | Monitoring stores nightly org backups. It grows, and it should not grow inside the repository people clone every day           |
 
 Your source repository and your monitoring repository are two different things with two different
 audiences.
 
 ### 2. Run the configuration
 
-Open the **Monitoring Config** panel.
+Open the **Monitoring Config Workbench** panel.
 
-![The Monitoring Config panel](../../_assets/vscode/monitoring-config.png)
+![The Monitoring Config Workbench panel](../../_assets/vscode/monitoring-config.png)
 
 Answer:
 
@@ -87,17 +87,17 @@ backup of production and a set of reports.
 
 ### 5. Read the first report
 
-Open the **Org Monitoring** panel in VS Code, pointed at the monitoring repository.
+Open the **Org Monitoring Workbench** panel in VS Code, pointed at the monitoring repository.
 
-![The Org Monitoring panel, reading the monitoring results](../../_assets/vscode/org-monitoring.png)
+![The Org Monitoring Workbench panel, reading the monitoring results](../../_assets/vscode/org-monitoring.png)
 
 On the seeded Helios production org you will find at least:
 
-| Finding | What it actually means |
-|---|---|
-| **2 inactive users** still active in Salesforce | Licences being paid for, and two accounts that can still log in |
-| **An unsecured Connected App** | Something can reach your production data and nobody remembers approving it |
-| **Apex on an old API version** | It will break at a Salesforce release, on a date you do not control |
+| Finding                                         | What it actually means                                                     |
+|-------------------------------------------------|----------------------------------------------------------------------------|
+| **2 inactive users** still active in Salesforce | Licences being paid for, and two accounts that can still log in            |
+| **An unsecured Connected App**                  | Something can reach your production data and nobody remembers approving it |
+| **Apex on an old API version**                  | It will break at a Salesforce release, on a date you do not control        |
 
 ### 6. Decide what is noise, which is the actual skill
 
@@ -105,10 +105,10 @@ This is the step that decides whether monitoring survives six months.
 
 Go through every finding and put it in one of three buckets:
 
-| Bucket | What you do | Example |
-|---|---|---|
-| **Act now** | Fix it this week | The unsecured Connected App |
-| **Track** | Put it in the backlog as a story | The old API version |
+| Bucket                     | What you do                                                 | Example                                 |
+|----------------------------|-------------------------------------------------------------|-----------------------------------------|
+| **Act now**                | Fix it this week                                            | The unsecured Connected App             |
+| **Track**                  | Put it in the backlog as a story                            | The old API version                     |
 | **Silence, with a reason** | Turn it off in the configuration, with a comment saying why | A check that does not apply to this org |
 
 **Silencing is legitimate.** A monitoring report with forty findings that nobody acts on is worse
