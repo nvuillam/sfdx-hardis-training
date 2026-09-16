@@ -37,7 +37,8 @@ global with sharing class CrewCapacityBatch implements Database.Batchable<SObjec
     }
 
     global void finish(Database.BatchableContext context) {
-        // Nothing to report: the next run recomputes everything anyway
+        // Nothing to report: the next run recomputes everything anyway.
+        // Touched by US-027 to prove a deployment action runs on a merge.
     }
 
     global void execute(SchedulableContext context) {

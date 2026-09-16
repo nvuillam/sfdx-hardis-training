@@ -1,0 +1,10 @@
+# Deployment actions for Pull Request #4 (US-027).
+commandsPostDeploy:
+  - id: 9c2f1a40-0b11-4d33-9f21-027000000001
+    label: Load crew capacity reference data
+    type: data
+    when: post-deploy
+    parameters:
+      sfdmuProject: HeliosCrewRefData
+    command: sf hardis:org:data:import --path scripts/data/HeliosCrewRefData
+    context: process-deployment-only
