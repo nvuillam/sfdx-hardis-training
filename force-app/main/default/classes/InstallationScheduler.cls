@@ -5,8 +5,13 @@ public with sharing class InstallationScheduler {
      */
     public static final Integer PREPARATION_DAYS = 3;
 
-    // Returns the earliest date a crew can be sent to this installation.
-    // The panels have to be in the warehouse, plus the preparation buffer.
+    /**
+     * The earliest date a crew can be sent to this installation: the panels have to
+     * be in the warehouse, plus the preparation buffer.
+     *
+     * @param installationId the installation to schedule
+     * @return the earliest possible install date, or null when no panel batch has arrived
+     */
     public static Date earliestInstallDate(Id installationId) {
         Date arrival = null;
         for (Panel_Batch__c batch : [
