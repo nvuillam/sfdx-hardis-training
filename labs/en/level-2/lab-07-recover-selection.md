@@ -5,7 +5,7 @@ lab: 7
 lang: en
 source_rev: ""
 screenshots:
-  - vscode/sidebar
+  - annotated/vscode/sidebar
 depends_on:
   commands: [hardis:work:resetselection, hardis:work:save]
   flags: []
@@ -62,9 +62,13 @@ That is the real damage. An over-wide selection does not just add noise, it prop
 
 ### 3. Recover: reset the selection
 
-In **Commands > CI/CD (simple)**, click **Reset selected list of items to merge**.
+Everything else in this course is a card in a panel. This one is not: it has no card, and the only
+way to reach it is the **SFDX HARDIS** view in the left bar, which lists every sfdx-hardis command
+whether or not a panel exposes it.
 
-![The sfdx-hardis Commands tree, where the recovery commands live](../../_assets/vscode/sidebar.png)
+Open it, then **CI/CD (simple)** **(1)**, then **Reset selected list of items to merge** **(2)**.
+
+![The SFDX HARDIS command list, with the CI/CD (simple) group open](../../_assets/annotated/vscode/sidebar.png)
 
 It clears the record of what you chose, so the next publish asks you again from scratch. It does
 **not** undo the commit that is already on your branch: that is the next step.

@@ -5,8 +5,7 @@ lab: 5
 lang: en
 source_rev: ""
 screenshots:
-  - vscode/devops-pipeline
-  - vscode/pipeline-branch-modal
+  - annotated/vscode/pipeline-branch-modal
 depends_on:
   commands: [hardis:doc:release-notes, hardis:project:deploy:smart]
   flags: []
@@ -41,17 +40,26 @@ deploys to has real testers in it.
 
 ### 1. See what you are about to ship
 
-Open the **DevOps Pipeline** panel and click the `integration` column.
+Open the **DevOps Pipeline** panel and click the `integration` node in the diagram. A window opens
+on that branch.
 
-![The branch window: what is waiting to be promoted](../../_assets/vscode/pipeline-branch-modal.png)
+![The branch window of integration, listing what it carries](../../_assets/annotated/vscode/pipeline-branch-modal.png)
 
-It lists every Pull Request merged into `integration` since the last promotion to `uat`. That list
-**is** the release. Read it before you create anything: if a story in it should not go out this
-week, now is the moment, not after the deployment.
+**Pull Requests** **(1)** is the list that matters: every Pull Request merged into `integration`
+since the last promotion to `uat`. That list **is** the release. Read it before you create anything:
+if a story in it should not go out this week, now is the moment, not after the deployment.
+
+**Deployment Actions** **(2)** is the same list of actions those Pull Requests carried, gathered in
+one place, and step 3 comes back to it. **(3)** generates the notes, which is step 6.
+
+!!! note "Empty, with a Go Live selector instead?"
+    Then this branch has no merge target yet, and the panel is showing you its go-lives rather than
+    what is waiting to be promoted. Lab 0 of this level is what gives `integration` a merge target.
+    Go back and finish it.
 
 ### 2. Create the promotion Pull Request
 
-From the same panel, create the Pull Request from `integration` into `uat`.
+From the same window, create the Pull Request from `integration` into `uat`.
 
 Title it for the humans who will read it, not for git:
 
@@ -97,8 +105,8 @@ a piece of reference data.
 
 ### 6. Generate the release notes
 
-Open the **DevOps Pipeline** panel and click the `uat` column. At the bottom of the branch window,
-click **Generate Promotion Notes for uat**: it covers the promotion you have just merged.
+Open the **DevOps Pipeline** panel and click the `uat` column, the same way you clicked
+`integration` in step 1. At the bottom of the branch window, click **Generate Promotion Notes for uat**: it covers the promotion you have just merged.
 
 The button is named after what the branch is. `uat` still merges into `main`, so what arrived there
 is a promotion. On a branch with no merge target, `main`, the same button reads **Generate Release
