@@ -20,6 +20,20 @@
     <interviewLabel>Installation Assign Crew {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Installation Assign Crew</label>
     <processType>AutoLaunchedFlow</processType>
+    <assignments>
+        <name>Flat_Roof_Minimum</name>
+        <description>US-034: a flat roof needs at least three people, whatever the planner asked for.</description>
+        <label>Flat Roof Minimum</label>
+        <locationX>176</locationX>
+        <locationY>420</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Crew_Size__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>3.0</numberValue>
+            </value>
+        </assignmentItems>
+    </assignments>
     <start>
         <locationX>50</locationX>
         <locationY>0</locationY>
