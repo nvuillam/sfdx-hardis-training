@@ -1,0 +1,11 @@
+Name,External_Id__c,Label__c,Sequence__c,Is_Template__c,Is_Done__c
+Roof anchors checked,HND-TPL-01,Roof anchors checked,1,true,false
+Panel serial numbers photographed,HND-TPL-02,Panel serial numbers photographed,2,true,false
+Inverter powered on,HND-TPL-03,Inverter powered on,3,true,false
+Mounting rails torqued,HND-TPL-04,Mounting rails torqued,4,true,false
+Cable runs clipped,HND-TPL-05,Cable runs clipped,5,true,false
+Meter reading recorded,HND-TPL-06,Meter reading recorded,6,true,false
+Customer app account created,HND-TPL-07,Customer app account created,7,true,false
+Warranty pack handed over,HND-TPL-08,Warranty pack handed over,8,true,false
+Site left clean,HND-TPL-09,Site left clean,9,true,false
+Customer signature collected,HND-TPL-10,Customer signature collected,10,true,false
