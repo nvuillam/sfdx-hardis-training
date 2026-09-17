@@ -3,6 +3,11 @@
     <description>Field crews: see the installations they are sent to, and update what happened on site.</description>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Panel_Batch__c.Cost__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Installation__c.Account__c</field>
         <readable>true</readable>
     </fieldPermissions>
