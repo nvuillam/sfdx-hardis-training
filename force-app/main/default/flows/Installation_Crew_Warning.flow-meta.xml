@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>US-021: keeps the fault message of a failed task or update, so the flow does not fail silently.</description>
+        <name>Log_Fault</name>
+        <label>Log Fault</label>
+        <locationX>314</locationX>
+        <locationY>600</locationY>
+        <assignmentItems>
+            <assignToReference>faultMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <description>US-021: one person fits about eight panels a day, so a crew under that is worth a warning, once.</description>
+        <name>Crew_Too_Small</name>
+        <label>Crew Too Small</label>
+        <locationX>176</locationX>
+        <locationY>300</locationY>
+        <defaultConnectorLabel>No warning needed</defaultConnectorLabel>
+        <rules>
+            <name>Crew_Under_Capacity</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Crew_Under_Capacity_Formula</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Warning_Task</targetReference>
+            </connector>
+            <label>Crew Under Capacity</label>
+        </rules>
+    </decisions>
+    <description>US-021: warns the planner once when the crew assigned to an installation cannot fit the panels booked for it.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>Crew_Under_Capacity_Formula</name>
+        <dataType>Boolean</dataType>
+        <expression>AND({!$Record.Crew_Size__c} * 8 &lt; {!$Record.Panels_Required__c}, NOT({!$Record.Crew_Warning_Sent__c}))</expression>
+    </formulas>
+    <interviewLabel>Installation Crew Warning {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Installation Crew Warning</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>US-021: the task that tells the planner to look at the crew size.</description>
+        <name>Create_Warning_Task</name>
+        <label>Create Warning Task</label>
+        <locationX>50</locationX>
+        <locationY>420</locationY>
+        <connector>
+            <targetReference>Mark_Warning_Sent</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Log_Fault</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <stringValue>Crew may be too small for this installation</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordUpdates>
+        <description>US-021: ticks the checkbox so the planner is warned once and not on every save.</description>
+        <name>Mark_Warning_Sent</name>
+        <label>Mark Warning Sent</label>
+        <locationX>50</locationX>
+        <locationY>540</locationY>
+        <faultConnector>
+            <targetReference>Log_Fault</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Crew_Warning_Sent__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Crew_Too_Small</targetReference>
+        </connector>
+        <filterFormula>AND(
+  NOT(ISBLANK({!$Record.Crew_Size__c})),
+  NOT(ISBLANK({!$Record.Panels_Required__c}))
+)</filterFormula>
+        <object>Installation__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>faultMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>
