@@ -1,0 +1,13 @@
+Name,External_Id__c,Crew_Type__c,Roof_Type__c,Panels_Per_Day__c
+Roof crew on tile,CAP-ROO-TIL,Roof,Tile,18
+Roof crew on slate,CAP-ROO-SLA,Roof,Slate,14
+Roof crew on flat,CAP-ROO-FLA,Roof,Flat,24
+Roof crew on metal,CAP-ROO-MET,Roof,Metal,20
+Ground crew on tile,CAP-GRO-TIL,Ground,Tile,12
+Ground crew on slate,CAP-GRO-SLA,Ground,Slate,10
+Ground crew on flat,CAP-GRO-FLA,Ground,Flat,30
+Ground crew on metal,CAP-GRO-MET,Ground,Metal,16
+Electrical crew on tile,CAP-ELE-TIL,Electrical,Tile,8
+Electrical crew on slate,CAP-ELE-SLA,Electrical,Slate,8
+Electrical crew on flat,CAP-ELE-FLA,Electrical,Flat,12
+Electrical crew on metal,CAP-ELE-MET,Electrical,Metal,10
