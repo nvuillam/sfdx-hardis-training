@@ -11,6 +11,5 @@
 **/objectTranslations/*
 **/standardValueSets/*
 
-# Temporary technical fields from the 2025 capacity spike, not versioned.
-# TODO remove once the spike is over  (Sofia, 2025-11)
-**/objects/Installation__c/fields/Crew_W*.field-meta.xml
+# One field of the 2025 capacity spike, named exactly so nothing else matches it
+**/objects/Installation__c/fields/Crew_Workaround__c.field-meta.xml
