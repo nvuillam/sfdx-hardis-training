@@ -1,0 +1,31 @@
+commandsPostDeploy:
+  - id: load-crew-capacity
+    label: Load the crew capacity reference data
+    type: data
+    when: post-deploy
+    parameters:
+      sfdmuProject: HeliosCrewRefData
+    command: sf hardis:org:data:import --path scripts/data/HeliosCrewRefData
+    context: process-deployment-only
+  - id: schedule-crew-capacity
+    label: Schedule the nightly crew capacity recalculation
+    type: schedule-batch
+    when: post-deploy
+    parameters:
+      className: CrewCapacityBatch
+      cronExpression: 0 0 2 * * ?
+      jobName: Helios crew capacity nightly
+    command: ""
+    context: process-deployment-only
+  - id: planning-board-setting
+    label: Turn on the planning board in Setup
+    type: manual
+    when: post-deploy
+    parameters:
+      instructions: |
+        1. Open **Setup**, type `Installed Packages` in the Quick Find box.
+        2. Find **Helios Planning** and click **Configure**.
+        3. Tick **Use crew capacity rules**, then click **Save**.
+        4. Check: the planning board shows a capacity column. If it was already ticked, there is nothing to do.
+    command: ""
+    context: all
