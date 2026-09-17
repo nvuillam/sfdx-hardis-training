@@ -1,0 +1,9 @@
+commandsPostDeploy:
+  - id: load-handover-template
+    label: Load the handover checklist template
+    type: data
+    when: post-deploy
+    parameters:
+      sfdmuProject: HeliosHandoverTemplate
+    command: sf hardis:org:data:import --path scripts/data/HeliosHandoverTemplate
+    context: process-deployment-only
