@@ -1,0 +1,28 @@
+# My Helios pipeline
+
+This is your notebook. Several labs ask you to write one line here, and the badge
+audit reads it. It is also the file you would actually keep on a real project, so
+that the next person can see how the pipeline was put together.
+
+## Orgs
+
+| Branch | Org alias | What it is for |
+|---|---|---|
+| (none) | helios-dev | Where I build my stories, a scratch org |
+| integration | helios-integration | The shared org every contributor merges into |
+| uat | helios-uat | Where a release is shown to the business |
+| preprod | helios-preprod | |
+| main | helios-prod | |
+
+## Level 2
+
+- **Lab 2.1, backpromote**: took the three merged Pull Requests down into helios-dev, and left my own work in progress alone.
+- **Lab 2.8, resetselection**: I had selected the whole org, about eighty files. Reset selected list of items to merge cleared the selection and undid my commit, my layout change stayed in my files, and the org never noticed.
+
+## Level 3
+
+- **Lab 3.2, CI authentication**: the date I deleted the `SFDX_AUTH_URL_INTEGRATION` and `SFDX_AUTH_URL_UAT` secrets, and why they should never have been there for a real org.
+- **Lab 3.4, Smart Deploy**: what the deployment sent, and what it skipped.
+- **Lab 3.7, DORA**: deployment frequency, lead time, change failure rate, time to restore.
+- **Lab 3.9, monitoring**: the URL of the monitoring repository this created.
+- **Lab 3.11, release notes**: the link to the release notes I published.
