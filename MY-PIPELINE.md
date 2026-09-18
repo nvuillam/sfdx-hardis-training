@@ -19,7 +19,9 @@ that the next person can see how the pipeline was put together.
 ## Level 2
 
 - **Lab 2.1, backpromote**: took the three merged stories, left my own work in progress alone.
-- **Lab 2.8, resetselection**: what I had over-selected, and how I recovered.
+- **Lab 2.8, resetselection**: I had selected the whole org. Reset selected list of items to merge
+  cleared the selection and undid my commit, my change stayed in my files, and the org never
+  noticed.
 
 ## Level 3
 
