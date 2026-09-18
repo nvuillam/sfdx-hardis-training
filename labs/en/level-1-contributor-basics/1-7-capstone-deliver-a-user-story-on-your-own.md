@@ -62,7 +62,8 @@ No numbered clicks this time. The loop, in order:
       status is not Completed, showing the account, the status, the install date and Panels Required
 3. **Bring it down.** **Commit changes**, **Recent Changes**, **Search Metadata**, and take the
    field, the layout, the list view and the two permission sets. Nothing else. Commit them
-4. **Publish**, and read `manifest/package.xml` before pushing. Five things, all yours
+4. **Publish**, and read the **Git Delta package.xml** report before pushing. Five things, all
+   yours
 5. **Open the Pull Request** into `integration` in your own fork, get it green, merge
 6. **Check the integration org** after the deployment job
 
@@ -83,9 +84,12 @@ In `helios-integration`, after the merge deployment:
 - **My Open Installations** in the list view picker on the Installations tab
 
 One thing may surprise you on the way. If you built the list view with the scope set to your own
-records, the diff shows it coming back as everything: that is the `listViewsMine` cleaning rule from
-Lab 1.5 doing its job, because "mine" means a different set of records for every person the story is
-deployed to.
+records, the commit Save / Publish adds shows it as **Everything**, and `config/.sfdx-hardis.yml`
+gains a `listViewsToSetToMine` entry naming it. That is the `listViewsMine` cleaning rule from Lab
+1.5: a deployment refuses a list view scoped to **Mine** in many orgs, so the file travels as
+Everything, and the deployment job sets it back to Mine in the org afterwards, through a browser it
+drives itself. The line **Successfully set Installation__c.My_Open_Installations as "Mine"** in the
+job log is that step.
 
 ## If it goes wrong
 
