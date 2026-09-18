@@ -39,6 +39,7 @@ Acceptance criteria:
 
 - A Panels Required field exists on Installation
 - It is visible to the crew permission set
+- Planners can fill it in
 - It appears on the Installation record page
 
 ### US-016 - Let the crew leave notes on an installation
@@ -53,7 +54,7 @@ Acceptance criteria:
 
 - A Crew Notes field exists on Installation
 - A My Open Installations list view exists
-- The crew permission set grants the field
+- The crew permission set grants the field, and so does the planners' one
 
 ### US-017 - Record who signed an installation off
 
@@ -138,13 +139,13 @@ Acceptance criteria:
 **Branch**: `features/US-026-crew-capacity-data`  
 **Lab**: 2.4
 
-> As a planner, I want capacity rules per crew type and a nightly job that recalculates them, so that the planning board is right every morning.
+> As a planner, I want capacity rules per crew type and a nightly job that recalculates them, so that the planning board is right every morning and I get a summary of it in my inbox.
 
 Acceptance criteria:
 
 - 12 Crew Capacity records exist in every org
 - The batch is scheduled nightly
-- The planning board setting is on
+- The planner receives the morning summary email
 
 ### US-027 - Check several installations against panel availability at once
 
