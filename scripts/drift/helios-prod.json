@@ -1,11 +1,6 @@
 {
-  "_comment": "What makes helios-prod different from the other training orgs. Applied by Training > Set up one of my training orgs. Lab 3.8 is built on the first two, and Lab 3.7 on the third.",
+  "_comment": "What makes helios-prod different from the other training orgs. Applied by Training > Set up one of my training orgs. Lab 3.9 needs the first step, Lab 3.7 the second. The picklist value Lab 3.8 retrofits is added by Simulate my teammates, when that lab starts: added here, the Lab 3.7 release would have removed it first.",
   "steps": [
-    {
-      "type": "apex",
-      "label": "An admin added a picklist value by hand during an incident",
-      "code": "// Production is not the repository. An admin added this value live, to unblock\n// planners during an incident, and it exists in no branch. Lab 3.8 retrofits it.\nList<Metadata.Metadata> found = Metadata.Operations.retrieve(\n    Metadata.MetadataType.CustomField,\n    new List<String>{ 'Installation__c.Status__c' }\n);\nif (!found.isEmpty()) {\n    Metadata.CustomField field = (Metadata.CustomField) found.get(0);\n    Boolean already = false;\n    if (field.valueSet != null && field.valueSet.valueSetDefinition != null) {\n        for (Metadata.CustomValue value : field.valueSet.valueSetDefinition.value) {\n            if (value.fullName == 'Needs Reinspection') {\n                already = true;\n            }\n        }\n        if (!already) {\n            Metadata.CustomValue added = new Metadata.CustomValue();\n            added.fullName = 'Needs Reinspection';\n            added.label = 'Needs Reinspection';\n            added.isActive = true;\n            field.valueSet.valueSetDefinition.value.add(added);\n            Metadata.DeployContainer container = new Metadata.DeployContainer();\n            container.addMetadata(field);\n            Metadata.Operations.enqueueDeployment(container, null);\n        }\n    }\n}\nSystem.debug('Needs Reinspection drift applied');"
-    },
     {
       "type": "apex",
       "label": "Two users left and nobody deactivated them, so monitoring has something true to report",

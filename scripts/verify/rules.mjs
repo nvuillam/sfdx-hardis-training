@@ -34,6 +34,13 @@ export function makeContext(dir, { local = false, sfQuery = null } = {}) {
     const res = spawnSync("git", args, { cwd: dir, encoding: "utf8", shell: false });
     return (res.stdout || "").trim();
   };
+  // On the learner's machine the local branches are whatever they were at the last pull: a Pull
+  // Request merged on GitHub is not in the local integration yet. What counts is the fork, so fetch
+  // it first, and read the published branch before the local one.
+  if (local) {
+    spawnSync("git", ["fetch", "origin", "--prune", "--quiet"], { cwd: dir, encoding: "utf8", shell: false });
+  }
+  const refsOf = (branch) => (branch.startsWith("origin/") ? [branch] : [`origin/${branch}`, branch]);
   const branches = git(["branch", "-a", "--format=%(refname:short)"])
     .split("\n")
     .map((b) => b.replace(/^origin\//, "").trim())
@@ -47,7 +54,7 @@ export function makeContext(dir, { local = false, sfQuery = null } = {}) {
       return cache.get(key);
     }
     let content = null;
-    for (const ref of [branch, `origin/${branch}`]) {
+    for (const ref of refsOf(branch)) {
       const res = spawnSync("git", ["show", `${ref}:${file}`], { cwd: dir, encoding: "utf8", shell: false });
       if (res.status === 0) {
         content = res.stdout;
@@ -64,7 +71,7 @@ export function makeContext(dir, { local = false, sfQuery = null } = {}) {
     return content;
   };
   const listOn = (branch, prefix) => {
-    for (const ref of [branch, `origin/${branch}`]) {
+    for (const ref of refsOf(branch)) {
       const res = spawnSync("git", ["ls-tree", "-r", "--name-only", ref], { cwd: dir, encoding: "utf8", shell: false });
       if (res.status === 0) {
         return res.stdout.split("\n").map((s) => s.trim()).filter((s) => s && s.startsWith(prefix));
@@ -76,7 +83,7 @@ export function makeContext(dir, { local = false, sfQuery = null } = {}) {
     return git(["rev-parse", "--abbrev-ref", "HEAD"]);
   }
   const log = (branch) => {
-    for (const ref of [branch, `origin/${branch}`]) {
+    for (const ref of refsOf(branch)) {
       const res = spawnSync("git", ["log", "--format=%s%n%b", ref], { cwd: dir, encoding: "utf8", shell: false });
       if (res.status === 0) {
         return res.stdout;
@@ -162,6 +169,12 @@ function firstPassing(...attempts) {
 
 const ruleCheck = (id) => (ctx) => RULES.find((r) => r.id === id).check(ctx);
 
+/**
+ * A hotfix in a history: the word itself, or a merge of a fix/ branch, which is how Lab 3.8 names
+ * it (branchPrefixChoices) and how the DORA report of Lab 3.7 recognises one.
+ */
+const isHotfix = (history) => mentions(history, "hotfix") || /(^|[\s/:])(hot|bug)?fix\//im.test(history || "");
+
 /** The dev org alias, as the universe names it. */
 const DEV_ORG = "helios-dev";
 
@@ -226,25 +239,35 @@ export const RULES = [
         if (!ctx.sfQuery) {
           return miss("your dev org could not be read from here", `${DEV_ORG}. Check it is connected in Orgs Manager`);
         }
-        const fields = ctx.sfQuery(
-          DEV_ORG,
-          "SELECT QualifiedApiName FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = 'Installation__c' AND QualifiedApiName = 'Panels_Required__c'"
-        );
-        if (fields === null) {
+        // The Tooling API, because FieldDefinition hides a field from a user who
+        // cannot see it, and not seeing it is one of the mistakes this checks for
+        const objects = ctx.sfQuery(DEV_ORG, "SELECT Id FROM CustomObject WHERE DeveloperName = 'Installation'", { tooling: true });
+        if (objects === null || objects.length === 0) {
           return miss("your dev org could not be queried", `${DEV_ORG}. Reconnect it in Orgs Manager, then run this again`);
         }
-        if (fields.length === 0) {
+        const fields = ctx.sfQuery(
+          DEV_ORG,
+          `SELECT Id FROM CustomField WHERE DeveloperName = 'Panels_Required' AND TableEnumOrId = '${objects[0].Id}'`,
+          { tooling: true }
+        );
+        if (!fields || fields.length === 0) {
           return miss("there is no Panels_Required__c field on Installation", `the org ${DEV_ORG}. Step 2 creates it`);
         }
-        const grants = ctx.sfQuery(
+        const granted = (permset, access) => (ctx.sfQuery(
           DEV_ORG,
-          "SELECT Id FROM FieldPermissions WHERE Parent.Name = 'Helios_Delivery_Crew' AND Field = 'Installation__c.Panels_Required__c' AND PermissionsRead = true"
-        );
-        return grants && grants.length > 0
-          ? pass(`Panels Required exists in ${DEV_ORG}, and Helios_Delivery_Crew can read it`)
-          : miss(
+          `SELECT Id FROM FieldPermissions WHERE Parent.Name = '${permset}' AND Field = 'Installation__c.Panels_Required__c' AND ${access} = true`
+        ) || []).length > 0;
+        if (!granted("Helios_Delivery_Crew", "PermissionsRead")) {
+          return miss(
             "the field exists, but the Helios_Delivery_Crew permission set does not grant read access to it",
             `the org ${DEV_ORG}, Setup > Permission Sets > Helios Delivery Crew > Object Settings > Installations`
+          );
+        }
+        return granted("Helios_Delivery_Manager", "PermissionsEdit")
+          ? pass(`Panels Required exists in ${DEV_ORG}, the crew can read it and the planners can fill it in`)
+          : miss(
+            "the crew can read the field, but Helios_Delivery_Manager does not grant edit access to it, so no planner can fill it in",
+            `the org ${DEV_ORG}, Setup > Permission Sets > Helios Delivery Manager > Object Settings > Installations`
           );
       }
     ),
@@ -291,9 +314,12 @@ export const RULES = [
         if (!fieldGrantedIn(ctx.readOn(ref, PERMSET("Helios_Delivery_Crew")), "Installation__c.Panels_Required__c")) {
           return miss("Helios_Delivery_Crew in the published branch does not grant the field", `${PERMSET("Helios_Delivery_Crew")} on ${where}`);
         }
+        if (!fieldGrantedIn(ctx.readOn(ref, PERMSET("Helios_Delivery_Manager")), "Installation__c.Panels_Required__c")) {
+          return miss("Helios_Delivery_Manager in the published branch does not grant the field", `${PERMSET("Helios_Delivery_Manager")} on ${where}`);
+        }
         const layout = ctx.readOn(ref, "force-app/main/default/layouts/Installation__c-Installation Layout.layout-meta.xml");
         return mentions(layout, "Panels_Required__c")
-          ? pass(`The field, its permission and the layout are published on ${branch}`)
+          ? pass(`The field, both permission sets and the layout are published on ${branch}`)
           : miss("the Installation layout in the published branch does not carry the field", `the Installation layout on ${where}`);
       }
     ),
@@ -335,14 +361,13 @@ export const RULES = [
           `${PERMSET("Helios_Delivery_Crew")} on branch ${DEV}`
         );
       }
-      // US-016 asks for the list view as well, and it is the one piece of the
-      // story that automated cleaning rewrites on the way in
-      const listView = ctx.readOn(DEV, "force-app/main/default/objects/Installation__c/listViews/My_Open_Installations.listView-meta.xml");
+      // US-016 asks for the list view as well
+      const listView = ctx.readOn(DEV, "force-app/main/default/objects/Installation__c/listViews/Open_Installations.listView-meta.xml");
       return listView
-        ? pass("Crew Notes, its permission and the My Open Installations list view are on integration")
+        ? pass("Crew Notes, its permission and the Open Installations list view are on integration")
         : miss(
-          "the My Open Installations list view was not found",
-          `force-app/main/default/objects/Installation__c/listViews/My_Open_Installations.listView-meta.xml on branch ${DEV}`
+          "the Open Installations list view was not found",
+          `force-app/main/default/objects/Installation__c/listViews/Open_Installations.listView-meta.xml on branch ${DEV}`
         );
     }
   },
@@ -351,6 +376,32 @@ export const RULES = [
   {
     id: "2.1", level: 2, lab: 1, auditable: false,
     title: "Your dev org is level with integration",
+    // Right after the lab the proof is in the org: Amina's field reached helios-dev.
+    // The notebook line is written with the next story, which is how it reaches
+    // integration, where check() reads it at the end of the level.
+    now: (ctx) => firstPassing(
+      () => ruleCheck("2.1")(ctx),
+      () => {
+        if (!ctx.sfQuery) {
+          return miss("your dev org could not be read from here", `${DEV_ORG}. Check it is connected in Orgs Manager`);
+        }
+        const objects = ctx.sfQuery(DEV_ORG, "SELECT Id FROM CustomObject WHERE DeveloperName = 'Installation'", { tooling: true });
+        if (!objects || objects.length === 0) {
+          return miss("your dev org could not be queried", `${DEV_ORG}. Reconnect it in Orgs Manager, then run this again`);
+        }
+        const fields = ctx.sfQuery(
+          DEV_ORG,
+          `SELECT Id FROM CustomField WHERE DeveloperName = 'Signed_Off_By' AND TableEnumOrId = '${objects[0].Id}'`,
+          { tooling: true }
+        );
+        return fields && fields.length > 0
+          ? pass(`Amina's Signed Off By field reached ${DEV_ORG}: your org is level with integration`)
+          : miss(
+            "Amina's Signed_Off_By__c field is not in your dev org, so the backpromote did not bring it",
+            `the org ${DEV_ORG}. Merge her US-017 Pull Request first (step 1), then run the backpromote again`
+          );
+      }
+    ),
     check: (ctx) => {
       const notes = pipelineNotes(ctx);
       return mentions(notes, "backpromote")
@@ -623,6 +674,15 @@ export const RULES = [
           "config/branches/. sf hardis:project:configure:auth writes both"
         );
       }
+      // The encrypted key files are committed with the story that configured them
+      const keys = ctx.listOn(DEV, "config/branches/.jwt/").concat(ctx.listOn("main", "config/branches/.jwt/"));
+      const noKey = branches.filter((b) => !keys.some((f) => f.endsWith(`/${b}.key`)));
+      if (noKey.length > 0) {
+        return miss(
+          `no encrypted key file for: ${noKey.join(", ")}`,
+          "config/branches/.jwt/ on integration. Add/Configure Org writes them, and they reach integration with your Lab 3.2 story"
+        );
+      }
       const notes = pipelineNotes(ctx);
       return mentions(notes, "SFDX_AUTH_URL_INTEGRATION")
         ? pass("The four orgs are configured, and the Level 1 shortcut is accounted for")
@@ -634,7 +694,7 @@ export const RULES = [
   },
   {
     id: "3.3", level: 3, lab: 3,
-    title: "Marco's US-018 was reviewed and merged into integration",
+    title: "Marco's US-018 was reviewed, and the field it took off the layout is back",
     check: (ctx) => {
       const history = ctx.log(DEV);
       if (!mentions(history, "US-018")) {
@@ -643,9 +703,15 @@ export const RULES = [
       const flows = ctx.listOn(DEV, "force-app/main/default/flows/");
       const assign = flows.find((f) => /Assign_Crew/i.test(f));
       const flow = assign ? ctx.readOn(DEV, assign) || "" : "";
-      return /cap|maximum|too large/i.test(flow)
-        ? pass("US-018 is merged and its cap is in the flow")
-        : miss("the US-018 crew cap is not in Installation_Assign_Crew", `${assign || "the flow folder"} on branch ${DEV}`);
+      if (!/cap|maximum|too large/i.test(flow)) {
+        return miss("the US-018 crew cap is not in Installation_Assign_Crew", `${assign || "the flow folder"} on branch ${DEV}`);
+      }
+      // The outcome of the review: the field US-018 took off the layout is back on it
+      const layoutFile = "force-app/main/default/layouts/Installation__c-Installation Layout.layout-meta.xml";
+      const layout = ctx.readOn(DEV, layoutFile) || "";
+      return /<field>Total_Capacity_kW__c<\/field>/.test(layout)
+        ? pass("US-018 is merged, and Total_Capacity_kW__c is back on the Installation layout")
+        : miss("Total_Capacity_kW__c is not on the Installation layout. Step 6 puts it back", `${layoutFile} on branch ${DEV}`);
     }
   },
   {
@@ -653,9 +719,11 @@ export const RULES = [
     title: "The integration deployment was read, not just watched",
     check: (ctx) => {
       const notes = pipelineNotes(ctx);
-      return mentions(notes, "smart deploy") || mentions(notes, "delta")
+      // The template line has no number in it: the lab's line says how many components went
+      const entries = notes.match(/Lab 3\.4[^]*?(?=\n\s*[-*] |\n#|$)/gi) || [];
+      return entries.some((entry) => /\d/.test(entry.replace(/Lab 3\.4/i, "")))
         ? pass("The deployment reading is recorded in MY-PIPELINE.md")
-        : miss("no note about what Smart Deploy sent and skipped", "MY-PIPELINE.md");
+        : miss("the Lab 3.4 line of MY-PIPELINE.md does not say how many components the deployment sent", "MY-PIPELINE.md, the Lab 3.4 line");
     }
   },
   {
@@ -733,7 +801,7 @@ export const RULES = [
             `${FIELD("Installation__c", "Status__c")} on branch ${DEV}, expected a "Needs Reinspection" value`
           );
         }
-        const hotfix = ["main", "preprod"].some((b) => mentions(ctx.log(b), "hotfix"));
+        const hotfix = ["main", "preprod"].some((b) => isHotfix(ctx.log(b)));
         return hotfix
           ? pass("The hotfix reached production, and the retrofit is on integration, waiting for the next release")
           : miss("no hotfix in the history of preprod or main", "the history of branches preprod and main");
@@ -749,7 +817,7 @@ export const RULES = [
         );
       }
       const history = ctx.log("main");
-      return mentions(history, "hotfix")
+      return isHotfix(history)
         ? pass("The hotfix and the retrofit are both on main")
         : miss("no hotfix in the history of main", "the history of branch main");
     }

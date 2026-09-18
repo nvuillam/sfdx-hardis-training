@@ -150,10 +150,15 @@
       "acceptance": [
         "A Panels Required field exists on Installation",
         "It is visible to the crew permission set",
+        "Planners can fill it in",
         "It appears on the Installation record page"
       ],
       "branch": "features/US-014-panels-required",
-      "metadata": ["Installation__c.Panels_Required__c", "Helios_Delivery_Crew"]
+      "metadata": [
+        "Installation__c.Panels_Required__c",
+        "Helios_Delivery_Crew",
+        "Helios_Delivery_Manager"
+      ]
     },
     {
       "id": "US-016",
@@ -161,16 +166,16 @@
       "lab": 7,
       "author": "you",
       "title": "Let the crew leave notes on an installation",
-      "story": "As a delivery crew member, I want a free text notes field and a list view of my open installations, so that I hand over cleanly to the next shift.",
+      "story": "As a delivery crew member, I want a free text notes field and a list view of the installations still open, so that I hand over cleanly to the next shift.",
       "acceptance": [
         "A Crew Notes field exists on Installation",
-        "A My Open Installations list view exists",
+        "An Open Installations list view exists, for every user",
         "The crew permission set grants the field"
       ],
       "branch": "features/US-016-crew-notes",
       "metadata": [
         "Installation__c.Crew_Notes__c",
-        "Installation__c listView My_Open_Installations",
+        "Installation__c listView Open_Installations",
         "Helios_Delivery_Crew"
       ]
     },
@@ -215,6 +220,49 @@
       "acceptance": ["The permission is granted to managers"],
       "branch": "training/mate-us-019-quote-pdf",
       "metadata": ["Helios_Delivery_Manager"]
+    },
+    {
+      "id": "US-050",
+      "level": 3,
+      "lab": 1,
+      "author": "you",
+      "title": "The pipeline reaches production",
+      "story": "As the release manager, I want preprod and main in the pipeline, with their orgs and their merge path, so that every release reaches production the same way.",
+      "acceptance": [
+        "preprod and main are major branches with their own org",
+        "integration merges into uat, uat into preprod, preprod into main",
+        "Contributors can target preprod for a hotfix"
+      ],
+      "branch": "features/US-050-pipeline-to-production",
+      "metadata": ["config/.sfdx-hardis.yml", "config/branches/"]
+    },
+    {
+      "id": "US-051",
+      "level": 3,
+      "lab": 2,
+      "author": "you",
+      "title": "CI authentication with JWT",
+      "story": "As the release manager, I want every CI job to log in with a certificate through an External Client App, so that no pipeline depends on one person's refresh token.",
+      "acceptance": [
+        "integration, uat, preprod and main each have an encrypted key file and two secrets",
+        "No SFDX_AUTH_URL secret is left in the repository",
+        "The integration check job logs in with JWT"
+      ],
+      "branch": "features/US-051-ci-authentication",
+      "metadata": ["config/.sfdx-hardis.yml", "config/branches/"]
+    },
+    {
+      "id": "US-052",
+      "level": 3,
+      "lab": 3,
+      "author": "you",
+      "title": "Total Capacity back on the Installation layout",
+      "story": "As a planner, I want to see the installed capacity on an installation again, so that I stop opening the report to find it.",
+      "acceptance": [
+        "Total Capacity (kW) is on the Installation layout, beside the crew capacity cap"
+      ],
+      "branch": "features/US-052-installation-layout-capacity",
+      "metadata": ["Installation__c-Installation Layout"]
     },
     {
       "id": "US-020",
@@ -264,11 +312,11 @@
       "lab": 4,
       "author": "you",
       "title": "Crew capacity reference data and nightly recalculation",
-      "story": "As a planner, I want capacity rules per crew type and a nightly job that recalculates them, so that the planning board is right every morning.",
+      "story": "As a planner, I want capacity rules per crew type and a nightly job that recalculates them, so that the planning board is right every morning and I get a summary of it in my inbox.",
       "acceptance": [
         "12 Crew Capacity records exist in every org",
         "The batch is scheduled nightly",
-        "The planning board setting is on"
+        "The planner receives the morning summary email"
       ],
       "branch": "features/US-026-crew-capacity-data",
       "metadata": ["Crew_Capacity__c", "CrewCapacityBatch"],
@@ -355,15 +403,15 @@
       "level": 3,
       "lab": 8,
       "author": "you",
-      "title": "Installations can no longer be saved",
-      "story": "As a planner, I want to be able to save an installation whose date is already in the past, so that I can update a job that has slipped.",
+      "title": "Cancelled installations can no longer be back-dated",
+      "story": "As a planner, I want to back-date an installation I cancel to the day it was called off, so that the week can be closed.",
       "acceptance": [
-        "The date validation rule only fires when the date is changed",
-        "Completed installations stay exempt"
+        "Cancelled installations are exempt from the date rule, like completed ones",
+        "The rule still refuses to move a planned installation into the past"
       ],
       "branch": "fix/US-045-installation-date-hotfix",
       "metadata": ["Installation_Date_Not_Past validation rule"],
-      "seededFailure": "The validation rule shipped without ISCHANGED, so it refuses every save of an old record"
+      "seededFailure": "The date validation rule exempts Completed installations and not Cancelled ones, so every back-dated cancellation is refused"
     }
   ],
   "pullRequests": [
@@ -532,7 +580,7 @@
           "lab": 9,
           "slug": "2-9-capstone-deliver-a-user-story-that-has-it-all",
           "title": "Capstone: deliver a User Story that has it all",
-          "description": "Deliver one Salesforce User Story with a dependency error, a data deployment action and a merge conflict, with no step-by-step.",
+          "description": "Deliver one Salesforce User Story with a dependency to check, a data deployment action and a teammate on the same permission set, with no step-by-step.",
           "time": "30 min"
         }
       ]

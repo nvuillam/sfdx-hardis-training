@@ -100,7 +100,6 @@
       ],
       "screenshots": [
         "annotated/vscode/pipeline-cards--new-user-story",
-        "annotated/vscode/work-new-target-branch",
         "annotated/vscode/work-new-story-type",
         "annotated/vscode/work-new-story-name",
         "annotated/vscode/work-new-org-type",
@@ -434,8 +433,7 @@
       ],
       "screenshots": [
         "annotated/vscode/sidebar-commands-custom-menu-2--training-menu",
-        "annotated/vscode/pipeline-cards--new-user-story",
-        "annotated/vscode/sidebar-commands-advanced--push"
+        "annotated/vscode/pipeline-cards--new-user-story"
       ]
     },
     {

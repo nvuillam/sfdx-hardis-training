@@ -34,13 +34,13 @@ deployment actions of three different kinds.
 > **US-026 - Crew capacity reference data and nightly recalculation**
 >
 > As a planner, I want capacity rules per crew type and a nightly job that recalculates them, so
-> that the planning board is right every morning.
+> that the planning board is right every morning and I get a summary of it in my inbox.
 >
 > Acceptance criteria:
 >
 > - 12 Crew Capacity records exist in every org
 > - The batch is scheduled nightly
-> - The planning board setting is on
+> - The planner receives the morning summary email
 
 You build it, the deployment is green, everyone signs it off, and three weeks later a planner says
 the board has never updated. The metadata arrived. Nothing else did.
@@ -59,7 +59,7 @@ or it happens once in your org and nowhere else, forever.
 ### 1. Take the story and build the metadata
 
 **New User Story** **(2)**, under **Project Contribution Workflow** **(1)** of the DevOps Pipeline
-panel. Branch `US-026-crew-capacity-data`, target `integration`, org `helios-dev`.
+panel. Name `US-026-crew-capacity-data`, org `helios-dev`.
 
 ![The New User Story card of the DevOps Pipeline panel](../../_assets/annotated/vscode/pipeline-cards--new-user-story.png)
 
@@ -75,25 +75,35 @@ In `helios-dev`, create:
   `CrewCapacityBatchTest`. **You do not have to write these.** Copy them from
   `scripts/apex/samples/` in the repository: what they compute matters far less here than the fact
   that somebody has to schedule them in every org, which is the whole point of the lab
+- The access, on **Helios Delivery Manager**: **Read**, **Create** and **Edit** on Crew Capacity,
+  and **Read** and **Edit** on its four fields. Planners maintain these numbers, and it is also the
+  permission set the pipeline's own user holds in every org: without it the data load of step 4
+  would find fields it is not allowed to write
 
 Then create 12 Crew Capacity records in your org, one per crew type and roof type combination that
 Helios supports.
 
 ### 2. Publish and watch nothing fail
 
-Retrieve the object, its fields and the Apex class with **Commit changes**, commit them, then
-**Save / Publish**, push, Pull Request. The check is green. Merge. The deployment is green.
+Retrieve the object, its fields, the two Apex classes and `Helios_Delivery_Manager` with **Commit
+changes**, commit them, then **Save / Publish**, push, Pull Request. The check is green. Merge. The
+deployment is green.
 
 Now open `helios-integration` and look:
 
 - `Crew_Capacity__c` exists, **with zero records**
 - `CrewCapacityBatch` exists, **scheduled nowhere**
-- The planning board setting is off
+- Nobody checked that the org is allowed to send the batch's summary email
 
 The feature is in the org and completely inert. This is worse than a failure, because a failure
 tells you.
 
 ### 3. Build a data workspace for the reference records
+
+The story is merged, so what is missing goes into a second Pull Request for the same story. **New
+User Story**, name `US-026-crew-capacity-actions`, org `helios-dev`: a follow-up branch is how a
+team finishes a story, and sfdx-hardis says it itself at the end of every Save / Publish, **do not
+reuse the same branch**.
 
 On the Welcome page, click **Data Workbench**. The panel that opens is titled **Data
 Import/Export Workbench**. **Create Workspace** **(1)** sits at the top right, and the workspaces
@@ -113,12 +123,15 @@ Create a new workspace named `HeliosCrewRefData`:
 4. External id: `External_Id__c`
 5. Fields: the four you created
 
-Then **Export data**, pointing at `helios-dev`. The panel pulls your 12 records into CSV files
-under `scripts/data/HeliosCrewRefData/`.
+Then **Export data**. It asks two questions: whether to use your default org, `helios-dev`, and
+whether you confirm the export. Yes to both. The panel pulls your 12 records into
+`scripts/data/HeliosCrewRefData/Crew_Capacity__c.csv`.
 
-Open `scripts/data/HeliosCrewRefData/Crew_Capacity__c.csv` and read it. Twelve rows, one column per
-field, each with a stable external id. That file is now versioned, reviewed and deployed like any
-other source.
+Open that file and read it. Twelve rows, one column per field, each with a stable external id, and
+an `Id` column first: the record ids of `helios-dev`, which mean nothing anywhere else and which
+the import ignores, because it matches on the external id. That file is now versioned, reviewed
+and deployed like any other source. The `logs`, `reports` and `target` folders the export also
+wrote next to it are git-ignored: nothing to commit there.
 
 !!! tip "Why the external id is not optional"
     `Upsert` on `External_Id__c` means running the import twice updates the same twelve records
@@ -127,7 +140,9 @@ other source.
 
 ### 4. Declare the three actions
 
-Open your Pull Request in the **DevOps Pipeline** panel, **Deployment Actions** tab, and add three.
+Actions belong to a Pull Request, so it has to exist first: commit the workspace, its
+`export.json` and the CSV file, **Save / Publish**, and open the Pull Request. Then open it in the
+**DevOps Pipeline** panel, **Deployment Actions** tab, and add three.
 
 **One: load the reference data.**
 
@@ -171,23 +186,28 @@ which the dialog explains with examples under the field.
 
 ![The Edit Deployment Action dialog, with the Manual type selected](../../_assets/annotated/vscode/pipeline-edit-action-manual.png)
 
-Some things have no API. The planning board setting is one of them: it is a toggle in a managed
-package's Setup screen, and no deployment will ever touch it.
+Some things have no API. Email deliverability is the best known one: whether an org may send
+email at all is a setting in Setup that no deployment can change. The batch emails the planner a
+summary when it finishes, and in an org where deliverability is not **All email**, that email is
+dropped without a word.
 
-| Field        | Value                                 |
-|--------------|---------------------------------------|
-| Type         | **Manual**                            |
-| Label        | `Turn on the planning board in Setup` |
-| Instructions | the four numbered lines below         |
-| Target orgs  | All target orgs                       |
+| Field        | Value                                      |
+|--------------|--------------------------------------------|
+| Type         | **Manual**                                 |
+| Label        | `Let the org send the batch summary email` |
+| Instructions | the four numbered lines below              |
+| Target orgs  | All target orgs                            |
 
 ```
-1. Open **Setup**, type `Installed Packages` in the Quick Find box.
-2. Find **Helios Planning** and click **Configure**.
-3. Tick **"Use crew capacity rules"**, then click **Save**.
-4. Check: the planning board shows a capacity column. If it was already ticked, there is nothing to
-   do: tick the box anyway.
+1. Open **Setup**, type `Deliverability` in the Quick Find box, and open it.
+2. Under **Access to Send Email**, set **Access level** to **All email**.
+3. Click **Save**.
+4. Check: the page reads **All email**. If it already did, there is nothing to do.
 ```
+
+On your scratch orgs it already reads **All email**, so the step takes ten seconds. On a real
+project it is the step people forget: every sandbox refresh puts a sandbox back to **System email
+only**, and the first sign of it is a planner asking why the summary stopped arriving.
 
 **Manual** **(1)** leaves one field that matters, **Instructions** **(2)**, a multi-line box that
 takes Markdown: number the clicks, and finish with what the person should see afterwards.
@@ -200,11 +220,17 @@ Confluence page nobody opens.
 
 ### 5. Read the Pull Request comment
 
-Push. When the check finishes, the sfdx-hardis comment now has a **Deployment actions** section
-listing all three, with what each will do and in which orgs.
+The editor wrote the three actions into `scripts/actions/`, in a file named after your Pull Request.
+Commit it, **Save / Publish**.
+
+When the check finishes, the sfdx-hardis comment carries a **Deployment Actions** section:
+
+- **Pending manual actions**: your deliverability step, with a checkbox, for `integration`
+- **Status by org branch**: one row per action, the import and the schedule marked **skipped**,
+  because a check changes nothing, and the manual step waiting for somebody
 
 Merge, and watch the deployment job: the data import runs, the batch gets scheduled, and the manual
-step is reported as pending.
+step stays pending until a person says it is done.
 
 ### 6. Verify in the integration org
 
@@ -214,8 +240,9 @@ Do not take the green tick for it. **Open the org and look:**
 - **Setup > Scheduled Jobs** lists `Helios crew capacity nightly`
 - The manual step is listed as still to do, because you have not done it
 
-Do the manual step by hand in `helios-integration`. That is the point: you did it **because the
-pipeline told you to**, not because you remembered.
+Do the manual step by hand in `helios-integration`, then tick its box under **Pending manual
+actions** in the comment on your Pull Request: the next sfdx-hardis job records it as done. That is
+the point: you did it **because the pipeline told you to**, not because you remembered.
 
 !!! warning "If the records are not there and the job was green"
     Read the deployment log for the line **Listing Post-deployment actions**. When it is followed by
@@ -272,12 +299,12 @@ All three are entries in the same YAML file under `scripts/actions/`:
           jobName: Helios crew capacity nightly
         context: process-deployment-only
         runOnlyOnceByOrg: true
-      - id: planning-board-setting
-        label: Turn on the planning board in Setup
+      - id: email-deliverability
+        label: Let the org send the batch summary email
         type: manual
         parameters:
           instructions: |
-            1. Open **Setup**, type `Installed Packages` in the Quick Find box.
+            1. Open **Setup**, type `Deliverability` in the Quick Find box, and open it.
             ...
 
 The data import runs SFDMU through `sf hardis:org:data:import`, the same command the Training menu
@@ -300,8 +327,9 @@ built it.
 ## If it goes wrong
 
 **The data import fails on field level security.**
-The CI user cannot write the fields. Add them to `Helios_Delivery_Manager` and redeploy: a
-deployment grants no field permissions to anybody by itself.
+The CI user cannot write the fields: the grant of step 1 is missing from `Helios_Delivery_Manager`,
+or never reached the repository. A deployment grants no field permissions to anybody by itself. Add
+them in `helios-dev`, retrieve the permission set, and publish again.
 
 **The import creates duplicates every run.**
 The operation is `Insert`, not `Upsert`, or the external id is not set. Open the workspace in the

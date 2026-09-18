@@ -14,6 +14,9 @@ for the `Helios Delivery` app, and every one of them is a lab in this course.
 | US-017 | 2 | Record who signed an installation off | Amina Diallo | `training/mate-us-017-sign-off` |
 | US-018 | 2 | Cap the crew size a planner can assign | Marco Bianchi | `training/mate-us-018-crew-capacity` |
 | US-019 | 2 | Generate a quote PDF from an opportunity | Amina Diallo | `training/mate-us-019-quote-pdf` |
+| US-050 | 3 | The pipeline reaches production | You | `features/US-050-pipeline-to-production` |
+| US-051 | 3 | CI authentication with JWT | You | `features/US-051-ci-authentication` |
+| US-052 | 3 | Total Capacity back on the Installation layout | You | `features/US-052-installation-layout-capacity` |
 | US-020 | 3 | Refactor InstallationScheduler | Marco Bianchi | `training/mate-us-020-apex-refactor` |
 | US-021 | 2 | Warn the planner when a crew is too small | You | `features/US-021-crew-size-warning` |
 | US-024 | 2 | Crew size becomes mandatory | You | `features/US-024-crew-size-required` |
@@ -23,9 +26,11 @@ for the `Helios Delivery` app, and every one of them is a lab in this course.
 | US-034 | 2 | Flat roofs need a crew of at least three | You | `features/US-034-crew-override` |
 | US-038 | 2 | Tidy the Installation layout | You | `features/US-038-installation-notes-tidy` |
 | US-041 | 2 | Installation handover checklist | You | `features/US-041-handover-checklist` |
-| US-045 | 3 | Installations can no longer be saved | You | `fix/US-045-installation-date-hotfix` |
+| US-045 | 3 | Cancelled installations can no longer be back-dated | You | `fix/US-045-installation-date-hotfix` |
 
 ## The stories in full
+
+<a id="US-014"></a>
 
 ### US-014 - Show the crew how many panels a job needs
 
@@ -39,7 +44,10 @@ Acceptance criteria:
 
 - A Panels Required field exists on Installation
 - It is visible to the crew permission set
+- Planners can fill it in
 - It appears on the Installation record page
+
+<a id="US-016"></a>
 
 ### US-016 - Let the crew leave notes on an installation
 
@@ -47,13 +55,15 @@ Acceptance criteria:
 **Branch**: `features/US-016-crew-notes`  
 **Lab**: 1.7
 
-> As a delivery crew member, I want a free text notes field and a list view of my open installations, so that I hand over cleanly to the next shift.
+> As a delivery crew member, I want a free text notes field and a list view of the installations still open, so that I hand over cleanly to the next shift.
 
 Acceptance criteria:
 
 - A Crew Notes field exists on Installation
-- A My Open Installations list view exists
+- An Open Installations list view exists, for every user
 - The crew permission set grants the field
+
+<a id="US-017"></a>
 
 ### US-017 - Record who signed an installation off
 
@@ -68,6 +78,8 @@ Acceptance criteria:
 - The field is on the layout
 - Managers can read and write it
 
+<a id="US-018"></a>
+
 ### US-018 - Cap the crew size a planner can assign
 
 **Owner**: Marco Bianchi  
@@ -81,6 +93,8 @@ Acceptance criteria:
 - Installation_Assign_Crew checks the cap
 - Planners can override it
 
+<a id="US-019"></a>
+
 ### US-019 - Generate a quote PDF from an opportunity
 
 **Owner**: Amina Diallo  
@@ -92,6 +106,54 @@ Acceptance criteria:
 Acceptance criteria:
 
 - The permission is granted to managers
+
+<a id="US-050"></a>
+
+### US-050 - The pipeline reaches production
+
+**Owner**: You  
+**Branch**: `features/US-050-pipeline-to-production`  
+**Lab**: 3.1
+
+> As the release manager, I want preprod and main in the pipeline, with their orgs and their merge path, so that every release reaches production the same way.
+
+Acceptance criteria:
+
+- preprod and main are major branches with their own org
+- integration merges into uat, uat into preprod, preprod into main
+- Contributors can target preprod for a hotfix
+
+<a id="US-051"></a>
+
+### US-051 - CI authentication with JWT
+
+**Owner**: You  
+**Branch**: `features/US-051-ci-authentication`  
+**Lab**: 3.2
+
+> As the release manager, I want every CI job to log in with a certificate through an External Client App, so that no pipeline depends on one person's refresh token.
+
+Acceptance criteria:
+
+- integration, uat, preprod and main each have an encrypted key file and two secrets
+- No SFDX_AUTH_URL secret is left in the repository
+- The integration check job logs in with JWT
+
+<a id="US-052"></a>
+
+### US-052 - Total Capacity back on the Installation layout
+
+**Owner**: You  
+**Branch**: `features/US-052-installation-layout-capacity`  
+**Lab**: 3.3
+
+> As a planner, I want to see the installed capacity on an installation again, so that I stop opening the report to find it.
+
+Acceptance criteria:
+
+- Total Capacity (kW) is on the Installation layout, beside the crew capacity cap
+
+<a id="US-020"></a>
 
 ### US-020 - Refactor InstallationScheduler
 
@@ -106,6 +168,8 @@ Acceptance criteria:
 - Behaviour unchanged
 - Coverage above the threshold
 
+<a id="US-021"></a>
+
 ### US-021 - Warn the planner when a crew is too small
 
 **Owner**: You  
@@ -118,6 +182,8 @@ Acceptance criteria:
 
 - The flow reads Crew Size
 - A warning is shown
+
+<a id="US-024"></a>
 
 ### US-024 - Crew size becomes mandatory
 
@@ -132,19 +198,23 @@ Acceptance criteria:
 - Crew Size is required
 - Existing records are backfilled with the default of 2
 
+<a id="US-026"></a>
+
 ### US-026 - Crew capacity reference data and nightly recalculation
 
 **Owner**: You  
 **Branch**: `features/US-026-crew-capacity-data`  
 **Lab**: 2.4
 
-> As a planner, I want capacity rules per crew type and a nightly job that recalculates them, so that the planning board is right every morning.
+> As a planner, I want capacity rules per crew type and a nightly job that recalculates them, so that the planning board is right every morning and I get a summary of it in my inbox.
 
 Acceptance criteria:
 
 - 12 Crew Capacity records exist in every org
 - The batch is scheduled nightly
-- The planning board setting is on
+- The planner receives the morning summary email
+
+<a id="US-027"></a>
 
 ### US-027 - Check several installations against panel availability at once
 
@@ -159,6 +229,8 @@ Acceptance criteria:
 - InstallationScheduler returns the installations that can take a crew on a given day
 - Coverage stays above the threshold
 
+<a id="US-033"></a>
+
 ### US-033 - Crews can read the panel batch cost
 
 **Owner**: You  
@@ -170,6 +242,8 @@ Acceptance criteria:
 Acceptance criteria:
 
 - The crew can read Panel Batch Cost
+
+<a id="US-034"></a>
 
 ### US-034 - Flat roofs need a crew of at least three
 
@@ -184,6 +258,8 @@ Acceptance criteria:
 - Installation_Assign_Crew raises the crew on flat roofs
 - Marco crew cap from US-018 still wins when the two disagree
 
+<a id="US-038"></a>
+
 ### US-038 - Tidy the Installation layout
 
 **Owner**: You  
@@ -195,6 +271,8 @@ Acceptance criteria:
 Acceptance criteria:
 
 - Crew Size sits above Install Date on the Installation layout
+
+<a id="US-041"></a>
 
 ### US-041 - Installation handover checklist
 
@@ -210,18 +288,20 @@ Acceptance criteria:
 - 10 reference checklist items are loaded in every org
 - The close flow blocks on an incomplete checklist
 
-### US-045 - Installations can no longer be saved
+<a id="US-045"></a>
+
+### US-045 - Cancelled installations can no longer be back-dated
 
 **Owner**: You  
 **Branch**: `fix/US-045-installation-date-hotfix`  
 **Lab**: 3.8
 
-> As a planner, I want to be able to save an installation whose date is already in the past, so that I can update a job that has slipped.
+> As a planner, I want to back-date an installation I cancel to the day it was called off, so that the week can be closed.
 
 Acceptance criteria:
 
-- The date validation rule only fires when the date is changed
-- Completed installations stay exempt
+- Cancelled installations are exempt from the date rule, like completed ones
+- The rule still refuses to move a planned installation into the past
 
 ## The team
 

@@ -60,8 +60,12 @@ export function printResults(results, handle, commit, { record = false } = {}) {
 }
 
 /** Records returned by a SOQL query on an org, or null when the org could not be read. */
-export function sfQuery(alias, soql) {
-  const res = runJson("sf", ["data", "query", "--target-org", alias, "--query", soql, "--json"], { quiet: true });
+export function sfQuery(alias, soql, { tooling = false } = {}) {
+  const res = runJson(
+    "sf",
+    ["data", "query", "--target-org", alias, "--query", soql, "--json", ...(tooling ? ["--use-tooling-api"] : [])],
+    { quiet: true }
+  );
   return Array.isArray(res?.result?.records) ? res.result.records : null;
 }
 
@@ -75,8 +79,10 @@ export default async function main(args) {
   const lab = args.lab === undefined ? null : Number.parseInt(String(args.lab).split(".").pop(), 10);
 
   const ctx = makeContext(args.dir || ROOT, { local: true, sfQuery });
-  const handle = githubHandle();
-  const commit = gitOut(["rev-parse", "--short", "HEAD"]) || "unknown";
+  // The clone being checked, which is not this script's own repository with --dir
+  const origin = args.dir ? ctx.git(["remote", "get-url", "origin"]).match(/github\.com[/:]([^/]+)\//i) : null;
+  const handle = args.dir ? origin?.[1] || null : githubHandle();
+  const commit = (args.dir ? ctx.git(["rev-parse", "--short", "HEAD"]) : gitOut(["rev-parse", "--short", "HEAD"])) || "unknown";
 
   let rules;
   if (lab === null) {

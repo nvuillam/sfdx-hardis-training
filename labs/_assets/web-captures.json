@@ -45,9 +45,7 @@
       "url": "https://code.visualstudio.com/download",
       "width": 1440,
       "height": 820,
-      "click": [
-        "button:has-text('Reject')"
-      ],
+      "click": ["button:has-text('Reject')"],
       "settle": 2000,
       "hideText": [
         {
@@ -83,20 +81,20 @@
     },
     {
       "name": "github-pr-comment",
-      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/5",
+      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/21",
       "width": 1440,
       "height": 1800,
       "settle": 5000,
       "clip": {
         "x": 100,
-        "y": 560,
-        "width": 890,
-        "height": 555
+        "y": 640,
+        "width": 900,
+        "height": 560
       }
     },
     {
       "name": "github-pr-checks",
-      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/5/checks",
+      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/21/checks",
       "width": 1440,
       "height": 900,
       "settle": 5000,
@@ -104,12 +102,18 @@
         "x": 0,
         "y": 95,
         "width": 1440,
-        "height": 470
-      }
+        "height": 400
+      },
+      "hideText": [
+        {
+          "text": "Socket Security",
+          "max": 40
+        }
+      ]
     },
     {
       "name": "github-pr-merge",
-      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/5",
+      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/23",
       "width": 1440,
       "height": 1000,
       "settle": 4000,
@@ -119,7 +123,13 @@
         "y": 295,
         "width": 850,
         "height": 250
-      }
+      },
+      "hideText": [
+        {
+          "text": "successful checks",
+          "max": 25
+        }
+      ]
     },
     {
       "name": "gh-cli-download",
@@ -157,15 +167,14 @@
     },
     {
       "name": "github-pr-deployed",
-      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/5",
+      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/21",
       "width": 1440,
-      "height": 1000,
-      "settle": 4500,
-      "scrollTo": "text=Deployment success",
+      "height": 3700,
+      "settle": 5000,
       "clip": {
         "x": 100,
-        "y": 325,
-        "width": 890,
+        "y": 3240,
+        "width": 900,
         "height": 335
       }
     },

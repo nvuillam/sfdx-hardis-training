@@ -37,7 +37,7 @@ Second ticket, second day. Nobody is going to walk you through this one.
 >
 > - A **Crew Notes** field exists on Installation, long text, editable by the crew
 > - It is on the Installation page layout, where the crew can see it
-> - A **My Open Installations** list view exists on Installation
+> - An **Open Installations** list view exists on Installation, for every user
 > - The crew permission set grants the field
 
 ## Before you start
@@ -54,13 +54,16 @@ No numbered clicks this time. The loop, in order:
 2. **Build it in `helios-dev`**
     - A **Long Text Area** field `Crew_Notes__c` on `Installation__c`, 4000 characters, with a
       description and help text
-    - Grant it **Read** and **Edit** on `Helios Delivery Crew`, because a crew member writes notes
+    - Grant it **Read** and **Edit** on `Helios Delivery Crew`, because a crew member writes notes.
+      Nobody else gets it yet: the planners' turn comes in Level 2
     - On the Installation page layout
-    - A list view on Installation called **My Open Installations**, filtered on installations whose
-      status is not Completed, showing the account, the status, the install date and Panels Required
+    - A list view on Installation called **Open Installations**, visible to all users, with
+      **Filter by Owner** on **All installations**, filtered on a status that is not Completed, and
+      showing the account, the status, the install date and Panels Required
 3. **Bring it down.** **Commit changes**, **Recent Changes**, **Search Metadata**, and take the
    field, the layout, the list view and the permission set. Nothing else. Commit them
-4. **Publish**, and read `manifest/package.xml` before pushing. Four things, all yours
+4. **Publish**, and read the **Git Delta package.xml** report before pushing. Four things, all
+   yours
 5. **Open the Pull Request** into `integration` in your own fork, get it green, merge
 6. **Check the integration org** after the deployment job
 
@@ -77,13 +80,20 @@ target org already, which it is since Lab 1.6.
 
 In `helios-integration`, after the merge deployment:
 
-- `Crew Notes` on the Installation record, editable, with your help text under it
-- **My Open Installations** in the list view picker on the Installations tab
+- `Crew Notes` granted, **Read** and **Edit**, on the **Helios Delivery Crew** permission set:
+  **Setup > Permission Sets > Helios Delivery Crew > Object Settings > Installations**. You will not
+  see the field on the record yourself: you hold the planners' permission set, and this story does
+  not grant it to them
+- **Open Installations** in the list view picker on the Installations tab
 
-One thing may surprise you on the way. If you built the list view with the scope set to your own
-records, the diff shows it coming back as everything: that is the `listViewsMine` cleaning rule from
-Lab 1.5 doing its job, because "mine" means a different set of records for every person the story is
-deployed to.
+!!! note "Why All installations, and not My installations"
+    A list view scoped to **My installations** is a different list for every person who opens it,
+    and Salesforce refuses to deploy that scope in many orgs. sfdx-hardis has an answer for it: the
+    `listViewsMine` cleaning rule of Lab 1.5 turns the scope into **Everything** before the commit,
+    records the list view under `listViewsToSetToMine` in `config/.sfdx-hardis.yml`, and after each
+    deployment the job sets it back to **Mine** by driving a browser through the org's Setup pages.
+    It works, and it is one more moving part in every deployment job. This story does not need it,
+    so it does without.
 
 ## If it goes wrong
 

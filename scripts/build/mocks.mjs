@@ -83,6 +83,17 @@ const PROJECT_TARGET_BRANCHES = targetBranchNames.map((branch, index) => ({
   description: targetBranchLabels[index] || undefined
 }));
 
+// The Feature / Fix question offers the project's branchPrefixChoices, with their
+// titles, in their order. Same hand-rolled read: value and title pairs only.
+const prefixBlock = projectConfigText.match(/^branchPrefixChoices:\r?\n((?:\s+.*\r?\n)+)/m);
+const BRANCH_PREFIX_CHOICES = prefixBlock
+  ? [...prefixBlock[1].matchAll(/-\s*value:\s*(\S+)\s*\r?\n\s*title:\s*"?([^"\r\n]+)"?/g)].map((m) => ({ title: m[2], value: m[1] }))
+  : [];
+if (BRANCH_PREFIX_CHOICES.length === 0) {
+  console.error("config/.sfdx-hardis.yml has no branchPrefixChoices the mock can read.");
+  process.exit(1);
+}
+
 const [owner, repo] = u.course.upstreamRepo.split("/");
 const WEB = `https://github.com/${owner}/${repo}`;
 const person = (handle) => u.cast.find((p) => p.handle === handle) || { name: handle, handle };
@@ -103,10 +114,20 @@ writeJson(path.join(OUT, "universe.json"), {
   // its window. Mermaid lays it out from the branches this universe carries, so
   // it moves whenever they change, and the click then hits empty canvas.
   branchNode: "1063,539",
-  // The heights of the three US-014 rows in the Metadata Retriever, for the
-  // clicks that tick them. They follow the sourceMembers list below: the panel
-  // sorts by type then name, and the seeded app rows sit between them.
-  retrieverRows: "611,863,914",
+  // Lab 1.5 sorts the Metadata Retriever on Last Updated Date, newest first:
+  // two clicks on that column header. The four US-014 rows are then the four
+  // at the top, whose heights the next setting lists for the clicks that tick
+  // them. They follow the dates of the sourceMembers list below.
+  retrieverSortClicks: "1680,413;1680,413",
+  retrieverRows: "459,510,561,611",
+  // The files the Source Control shot shows after that retrieve: the four
+  // components of US-014, the planners' permission set included
+  retrievedFiles: [
+    "force-app/main/default/objects/Installation__c/fields/Panels_Required__c.field-meta.xml",
+    "force-app/main/default/layouts/Installation__c-Installation Layout.layout-meta.xml",
+    "force-app/main/default/permissionsets/Helios_Delivery_Crew.permissionset-meta.xml",
+    "force-app/main/default/permissionsets/Helios_Delivery_Manager.permissionset-meta.xml"
+  ].join(","),
   // The order the Deployment Actions tab lists them in, for the editor shots:
   // this project loads its reference data after the metadata deployment
   actionEditorOrder:
@@ -206,6 +227,11 @@ writeJson(path.join(OUT, "sf-mock-overlay.json"), {
     // integration, and a screenshot showing uat and main would be offering a
     // contributor two answers the config refuses.
     targetBranches: PROJECT_TARGET_BRANCHES,
+    // The two story types this project declares, worded as the command shows them
+    branchPrefixChoices: BRANCH_PREFIX_CHOICES,
+    // A learner has a default org from Lab 1.2 on, so the org question also
+    // offers "Current org", between Scratch org and no org at all
+    currentOrgChoice: true,
     storyName: `${STORY.id} ${STORY.title}`,
     // What the prompt offers as an example: the project declares a branch name
     // pattern, so the example has to be a name that pattern accepts
@@ -257,7 +283,7 @@ writeJson(path.join(OUT, "sf-mock-overlay.json"), {
   sourceMembers: [
     ["CustomField", "Installation__c.Panels_Required__c", "You", "created", "2026-09-17T14:42:00.000+0000"],
     ["PermissionSet", "Helios_Delivery_Crew", "You", "modified", "2026-09-17T14:46:00.000+0000"],
-    ["Layout", "Installation__c-Installation Layout", "You", "modified", "2026-09-17T14:49:00.000+0000"],
+    ["Layout", "Installation__c-Installation Layout", "You", "modified", "2026-09-17T14:43:00.000+0000"],
     ["CustomObject", "Installation__c", "You", "created", "2026-09-15T09:12:00.000+0000"],
     ["CustomObject", "Panel_Batch__c", "You", "created", "2026-09-15T09:12:00.000+0000"],
     ["CustomField", "Installation__c.Crew_Size__c", "You", "created", "2026-09-15T09:12:00.000+0000"],
@@ -265,7 +291,7 @@ writeJson(path.join(OUT, "sf-mock-overlay.json"), {
     ["CustomField", "Installation__c.Status__c", "You", "created", "2026-09-15T09:12:00.000+0000"],
     ["Flow", "Installation_Assign_Crew", "You", "created", "2026-09-15T09:12:00.000+0000"],
     ["ApexClass", "InstallationScheduler", "You", "created", "2026-09-15T09:12:00.000+0000"],
-    ["PermissionSet", "Helios_Delivery_Manager", "You", "created", "2026-09-15T09:12:00.000+0000"]
+    ["PermissionSet", "Helios_Delivery_Manager", "You", "modified", "2026-09-17T14:48:00.000+0000"]
   ],
   apexClasses: [
     {
@@ -291,7 +317,8 @@ function ticketsOf(story) {
     {
       provider: "GENERIC",
       id: story.id,
-      url: `${u.course.site}/BACKLOG/#${story.id.toLowerCase()}-${story.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      // The link the project's generic ticketing provider builds from the story id
+      url: `${u.course.site}/BACKLOG/#${story.id}`,
       subject: story.title,
       status: "In Progress",
       statusLabel: "In Progress"
@@ -527,7 +554,7 @@ if (fs.existsSync(basePlanFile)) {
 
   const ACTIONS = [
     ["load-crew-capacity", "Load the crew capacity reference data", "data", "post", false],
-    ["planning-board-setting", "Turn on the planning board in Setup", "manual", "post", true]
+    ["email-deliverability", "Let the org send the batch summary email", "manual", "post", true]
   ];
   plan.actions = ACTIONS.map(([id, label, type, phase, manual], i) => ({
     ...(plan.actions[i] || plan.actions[0]),
@@ -659,7 +686,7 @@ commandsPostDeploy:
     parameters:
       apexScript: scripts/apex/backfill-crew-size.apex
     command: ""
-    context: all
+    context: process-deployment-only
     runOnlyOnceByOrg: true
   - id: 7a1c3d2e-2d0b-4f1e-8e3b-024b00000005
     label: Schedule the nightly crew capacity recalculation
@@ -680,15 +707,15 @@ commandsPostDeploy:
     command: ""
     context: process-deployment-only
   - id: 7a1c3d2e-2d0b-4f1e-8e3b-024b00000007
-    label: Turn on the planning board in Setup
+    label: Let the org send the batch summary email
     type: manual
     when: post-deploy
     parameters:
       instructions: |
-        1. Open **Setup**, type \`Installed Packages\` in the Quick Find box.
-        2. Find **Helios Planning** and click **Configure**.
-        3. Tick **Use crew capacity rules**, then click **Save**.
-        4. Check: the planning board shows a capacity column. If it was already ticked, there is nothing to do: tick the box anyway.
+        1. Open **Setup**, type \`Deliverability\` in the Quick Find box, and open it.
+        2. Under **Access to Send Email**, set **Access level** to **All email**.
+        3. Click **Save**.
+        4. Check: the page reads **All email**. If it already did, there is nothing to do.
     command: ""
     context: all
   # Target orgs examples: the warehouse system is only connected to the uat and

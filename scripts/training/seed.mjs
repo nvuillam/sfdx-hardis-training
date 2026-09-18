@@ -16,6 +16,7 @@
  *   - It never authenticates. Orgs Manager owns that.
  */
 import fs from "fs";
+import os from "os";
 import path from "path";
 import {
   ROOT, c, title, info, ok, warn, abort, run, runAsync, runJson,
@@ -57,12 +58,13 @@ export async function deployAppToAll(targets) {
  * message that has nothing to do with the real cause.
  */
 export function grantManager(target, options = {}) {
+  // Always captured: the answer has to be read, because an assignment that already
+  // exists fails with "Duplicate PermissionSetAssignment", which is the state we want
   const res = run(
     "sf",
     ["org", "assign", "permset", "--name", MANAGER_PERMSET, "--target-org", target],
-    options.quiet ? { quiet: true, capture: true } : {}
+    { quiet: options.quiet === true, capture: true }
   );
-  // A second assignment fails with "duplicate", which is the state we wanted
   return res.code === 0 || /duplicate/i.test(res.stdout + res.stderr);
 }
 
@@ -72,12 +74,57 @@ export function grantManager(target, options = {}) {
  * workspace folder, and two loads sharing that folder overwrite each other.
  */
 export function loadData(target, options = {}) {
+  const workspace = baselineWorkspace();
   const res = run(
     "sf",
-    ["hardis:org:data:import", "--agent", "--path", path.join("scripts", "data", "HeliosBaseline"), "--target-org", target],
+    ["hardis:org:data:import", "--agent", "--path", workspace, "--target-org", target],
     options.quiet ? { quiet: true, capture: true } : {}
   );
+  if (workspace !== BASELINE) {
+    fs.rmSync(workspace, { recursive: true, force: true });
+  }
   return { ok: res.code === 0, output: (res.stdout + "\n" + res.stderr).trim() };
+}
+
+const BASELINE = path.join("scripts", "data", "HeliosBaseline");
+
+/**
+ * The seed data as this project can load it.
+ *
+ * The baseline leaves Crew Size empty on most installations, on purpose: Lab 2.3 is about the day it
+ * becomes mandatory. From then on the project deploys it as required, and loading an installation
+ * without one fails. An org seeded after that point, helios-preprod or helios-prod in Level 3, gets
+ * the default Lab 2.3's backfill gives them, 2, through a copy of the workspace. The committed files
+ * never change.
+ */
+function baselineWorkspace() {
+  const field = path.join(ROOT, "force-app", "main", "default", "objects", "Installation__c", "fields", "Crew_Size__c.field-meta.xml");
+  const required = fs.existsSync(field) && /<required>true<\/required>/.test(fs.readFileSync(field, "utf8"));
+  if (!required) {
+    return BASELINE;
+  }
+  const copy = fs.mkdtempSync(path.join(os.tmpdir(), "helios-baseline-"));
+  for (const file of fs.readdirSync(path.join(ROOT, BASELINE))) {
+    const from = path.join(ROOT, BASELINE, file);
+    if (fs.statSync(from).isFile()) {
+      fs.copyFileSync(from, path.join(copy, file));
+    }
+  }
+  const csv = path.join(copy, "Installation__c.csv");
+  const [header, ...rows] = fs.readFileSync(csv, "utf8").split(/\r?\n/);
+  const column = header.split(",").indexOf("Crew_Size__c");
+  const filled = rows.map((row) => {
+    if (!row || column < 0) {
+      return row;
+    }
+    const cells = row.split(",");
+    if (cells[column] === "") {
+      cells[column] = "2";
+    }
+    return cells.join(",");
+  });
+  fs.writeFileSync(csv, [header, ...filled].join("\n"), "utf8");
+  return copy;
 }
 
 /** Remembers which org was seeded, under which username, so a second run can skip it. */
@@ -189,6 +236,12 @@ export function applyDrift(alias) {
       } else {
         warn(`${step.label} could not be applied. The lab that needs it will say so.`);
       }
+    } else if (step.type === "picklist-value") {
+      if (addPicklistValue(alias, step)) {
+        done.push(step.label);
+      } else {
+        warn(`${step.label} could not be applied. The lab that needs it will say so.`);
+      }
     } else if (step.type === "data") {
       const res = run("sf", [
         "hardis:org:data:import", "--agent",
@@ -203,6 +256,53 @@ export function applyDrift(alias) {
     }
   }
   return done;
+}
+
+/**
+ * Adds one value to a picklist of the org, the way an admin in Setup would end up with it.
+ *
+ * The Apex Metadata API cannot change a custom field, so this goes through the Metadata API
+ * from a throwaway project: retrieve the field as the org has it, add the value, deploy that
+ * one file back. Nothing in the learner's project is touched.
+ */
+export function addPicklistValue(alias, step) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "helios-drift-"));
+  try {
+    fs.writeFileSync(
+      path.join(dir, "sfdx-project.json"),
+      JSON.stringify({ packageDirectories: [{ path: "force-app", default: true }], sourceApiVersion: "64.0" }),
+      "utf8"
+    );
+    fs.mkdirSync(path.join(dir, "force-app"), { recursive: true });
+    const member = `CustomField:${step.object}.${step.field}`;
+    if (run("sf", ["project", "retrieve", "start", "--metadata", member, "--target-org", alias], { cwd: dir, quiet: true, capture: true }).code !== 0) {
+      return false;
+    }
+    const file = path.join(dir, "force-app", "main", "default", "objects", step.object, "fields", `${step.field}.field-meta.xml`);
+    if (!fs.existsSync(file)) {
+      return false;
+    }
+    const xml = fs.readFileSync(file, "utf8");
+    if (xml.includes(`<fullName>${step.value}</fullName>`)) {
+      return true;
+    }
+    const value =
+      `            <value>
+                <fullName>${step.value}</fullName>
+                <default>false</default>
+` +
+      `                <label>${step.value}</label>
+            </value>
+`;
+    const at = xml.lastIndexOf("        </valueSetDefinition>");
+    if (at < 0) {
+      return false;
+    }
+    fs.writeFileSync(file, xml.slice(0, at) + value + xml.slice(at), "utf8");
+    return run("sf", ["project", "deploy", "start", "--source-dir", "force-app", "--target-org", alias], { cwd: dir, quiet: true, capture: true }).code === 0;
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 export function countRecords(alias) {

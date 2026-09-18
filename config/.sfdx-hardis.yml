@@ -14,15 +14,17 @@ productionBranch: main
 # GitHub secrets, which is the shortcut, so there is no certificate to look for
 # and the pipeline is right not to ask for one. Lab 3.2 replaces it with
 # a JWT certificate and puts this back to encryptedCert.
-orgAuthenticationMode: secretsOnly
+orgAuthenticationMode: encryptedCert
 # One entry on purpose. A contributor at Levels 1 and 2 has exactly one place
 # to send a User Story, and a question with one answer is a question that
 # cannot be got wrong. uat is a major branch all the same: work reaches it by
 # promotion, never by a User Story. Lab 3.1 adds preprod here, for hotfixes.
 availableTargetBranches:
   - integration
+  - preprod
 availableTargetBranchesLabels:
   - "The shared integration org, where every contributor merges"
+  - "Hotfixes on the production version, agreed with the release manager"
 
 # Branch naming for new User Stories
 branchPrefixChoices:
@@ -32,6 +34,10 @@ branchPrefixChoices:
     title: "Fix: correct something that is broken"
 newTaskNameRegex: '^US-\d{3}-[a-z0-9-]+$'
 newTaskNameRegexExample: "US-014-panels-required"
+# The stories live in the backlog of this course, not in a ticketing tool. These two
+# keys let the Pull Request comments link every US-nnn they meet to its story.
+genericTicketingProviderRegex: "(US-[0-9]{3})"
+genericTicketingProviderUrlBuilder: "https://hardisgroupcom.github.io/sfdx-hardis-training/BACKLOG/#{REF}"
 
 # --- Quality --------------------------------------------------------------
 testLevel: RunLocalTests

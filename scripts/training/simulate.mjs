@@ -44,6 +44,12 @@ export default async function simulate(args) {
   );
   const scenario = scenarios.find((s) => s.id === id);
 
+  // Somebody who changes an org rather than the repository: an admin in production
+  if (scenario.kind === "org") {
+    await simulateOrgChange(scenario, args);
+    return;
+  }
+
   const slug = repoSlug();
   if (slug && slug.toLowerCase() === universe().course.upstreamRepo.toLowerCase()) {
     abort(
@@ -65,12 +71,25 @@ export default async function simulate(args) {
   }
 
   const startingBranch = gitOut(["rev-parse", "--abbrev-ref", "HEAD"]);
-  const dirty = gitOut(["status", "--porcelain"]);
-  if (dirty) {
-    abort(
-      "You have uncommitted changes.",
-      "Commit or stash them first: this command switches branches and does not want to take your work with it."
-    );
+  // Uncommitted work, typically the MY-PIPELINE.md line of a lab that has no story
+  // of its own, is put aside while the teammate branch is built, and put back on
+  // the branch the learner was on, whatever happens in between
+  let stashed = gitOut(["status", "--porcelain"]) !== "";
+  const restore = () => {
+    run("git", ["checkout", startingBranch && startingBranch !== scenario.branch ? startingBranch : "integration"], { quiet: true });
+    if (stashed) {
+      stashed = false;
+      if (run("git", ["stash", "pop"], { quiet: true }).code === 0) {
+        ok("Your uncommitted changes are back where they were");
+      } else {
+        warn("Your uncommitted changes could not be put back automatically. They are in the latest stash: Source Control panel, Stashes, Pop Latest Stash.");
+      }
+    }
+  };
+  if (stashed) {
+    run("git", ["stash", "push", "--include-untracked", "-m", "Simulate my teammates: uncommitted work"], { quiet: true });
+    info("  Your uncommitted changes are put aside while the teammate branch is built, and put back at the end.");
+    process.on("exit", () => stashed && restore());
   }
 
   title("1 of 4  Creating the teammate branch");
@@ -88,7 +107,8 @@ export default async function simulate(args) {
   ok(`On ${scenario.branch}`);
 
   title("2 of 4  Applying the teammate changes");
-  const applied = [...applyFiles(scenario), ...applyPatches(scenario)];
+  const planned = planPatches(scenario);
+  const applied = [...applyFiles(scenario), ...writePlanned(planned)];
   applied.forEach((f) => info(c.dim(`    ${f}`)));
   ok(`${applied.length} file(s) written`);
 
@@ -101,7 +121,7 @@ export default async function simulate(args) {
   ]);
   if (commit.code !== 0) {
     warn("Nothing to commit: the teammate changes are already in your integration branch.");
-    run("git", ["checkout", startingBranch || "integration"]);
+    restore();
     return;
   }
   ok("Committed");
@@ -128,6 +148,9 @@ export default async function simulate(args) {
     for (let attempt = 1; attempt <= 3; attempt++) {
       pr = run("gh", [
         "pr", "create",
+        // Named explicitly: in a fork with no default repository set, gh picks
+        // the parent, the shared training repository, as the base
+        "--repo", slug,
         "--base", "integration",
         "--head", scenario.branch,
         "--title", scenario.prTitle,
@@ -150,8 +173,36 @@ export default async function simulate(args) {
     }
   }
 
-  run("git", ["checkout", startingBranch && startingBranch !== scenario.branch ? startingBranch : "integration"]);
+  restore();
 
+  title("Done");
+  info(`  ${scenario.nextStep}`);
+}
+
+/**
+ * A change made live in an org, the way an admin does it in Setup: nothing in git, no Pull
+ * Request. It is applied at the moment the lab needs it, because the next release that touches
+ * the same component would otherwise have removed it before anybody went looking.
+ */
+async function simulateOrgChange(scenario, args) {
+  info("");
+  info(`  ${scenario.description}`);
+  info("");
+  info(`  It changes ${c.bold(scenario.org)} directly, the way it happened. Nothing in your repository changes.`);
+  const sure = args.yes === true || (await confirm("Make the change?", true));
+  if (!sure) {
+    info("Nothing was changed.");
+    return;
+  }
+  const { addPicklistValue } = await import("./seed.mjs");
+  title(`Changing ${scenario.org}`);
+  if (scenario.change.type !== "picklist-value" || !addPicklistValue(scenario.org, scenario.change)) {
+    abort(
+      `The change could not be made in ${scenario.org}.`,
+      `Check that ${scenario.org} is connected in Orgs Manager, then run this again.`
+    );
+  }
+  ok(`${scenario.change.object}.${scenario.change.field} now offers ${c.bold(scenario.change.value)} in ${scenario.org}`);
   title("Done");
   info(`  ${scenario.nextStep}`);
 }
@@ -175,19 +226,27 @@ function loadScenarios() {
  * over it would take their work back out without a word, so a teammate says
  * what it adds and what it removes, and nothing else changes.
  *
- * Each patch is { file, block, insertBefore | insertAfter | remove }.
+ * Each patch is { file, block, insertBefore | insertAfter | remove }, or one of the structural
+ * patches of applyStructuralPatch below, which the scenarios use.
  */
-function applyPatches(scenario) {
-  const written = [];
+function planPatches(scenario) {
+  // Every patch is worked out in memory first, and nothing is written until all
+  // of them fit: a scenario that stopped half way used to leave the permission
+  // set changed and the field file written, on a branch the learner never asked for.
+  const planned = new Map();
   for (const patch of scenario.patches || []) {
     const target = path.join(ROOT, patch.file);
-    if (!fs.existsSync(target)) {
+    if (!planned.has(target) && !fs.existsSync(target)) {
       abort(
         `The teammate change expects ${patch.file}, which is not in your project.`,
         "Reset the level from the Training menu, then run this again."
       );
     }
-    let content = fs.readFileSync(target, "utf8");
+    let content = planned.has(target) ? planned.get(target) : fs.readFileSync(target, "utf8");
+    if (patch.fieldPermission || patch.layoutField || patch.removeLayoutField) {
+      planned.set(target, applyStructuralPatch(patch, content));
+      continue;
+    }
     if (patch.remove) {
       if (!content.includes(patch.remove)) {
         warn(`Nothing to remove in ${patch.file}: it was already gone.`);
@@ -209,10 +268,82 @@ function applyPatches(scenario) {
         content = content.slice(0, at) + patch.block + content.slice(at);
       }
     }
+    planned.set(target, content);
+  }
+  return planned;
+}
+
+function writePlanned(planned) {
+  const written = [];
+  for (const [target, content] of planned) {
     fs.writeFileSync(target, content, "utf8");
-    written.push(`${patch.file} (patched)`);
+    written.push(`${path.relative(ROOT, target).replace(/\\/g, "/")} (patched)`);
   }
   return written;
+}
+
+/**
+ * A teammate change described by what it means rather than by the text around it.
+ *
+ * Anchoring on exact lines broke as soon as a file was formatted differently, and
+ * a permission inserted at the top of the file put it where Salesforce never does:
+ * the learner's next retrieve then showed it moving, a diff about nothing. These
+ * find their place the way Salesforce orders the file.
+ *
+ *   { fieldPermission: { field, editable, readable } }   in alphabetical order
+ *   { layoutField: "X", after: "Y" }                      layout item X after item Y
+ *   { removeLayoutField: "Z" }                            layout item Z removed
+ */
+function applyStructuralPatch(patch, content) {
+  const cannot = () =>
+    abort(`The teammate change cannot be placed in ${patch.file}.`, "Reset the level from the Training menu, then run this again.");
+
+  if (patch.fieldPermission) {
+    const { field, editable, readable } = patch.fieldPermission;
+    const blocks = [...content.matchAll(/( *)<fieldPermissions>[\s\S]*?<field>([^<]+)<\/field>[\s\S]*?<\/fieldPermissions>\r?\n/g)];
+    if (blocks.some((m) => m[2] === field)) {
+      warn(`${patch.file} already carries this change.`);
+      return content;
+    }
+    if (blocks.length === 0) {
+      cannot();
+    }
+    const indent = blocks[0][1];
+    const inner = `${indent}    `;
+    const block =
+      `${indent}<fieldPermissions>\n${inner}<editable>${editable === true}</editable>\n` +
+      `${inner}<field>${field}</field>\n${inner}<readable>${readable !== false}</readable>\n${indent}</fieldPermissions>\n`;
+    const next = blocks.find((m) => m[2].localeCompare(field, "en") > 0);
+    const at = next ? next.index : blocks[blocks.length - 1].index + blocks[blocks.length - 1][0].length;
+    return content.slice(0, at) + block + content.slice(at);
+  }
+
+  const itemOf = (name) =>
+    new RegExp(`( *)<layoutItems>\\s*<behavior>[^<]*</behavior>\\s*<field>${name}</field>\\s*</layoutItems>\\r?\\n`).exec(content);
+
+  if (patch.removeLayoutField) {
+    const item = itemOf(patch.removeLayoutField);
+    if (!item) {
+      warn(`Nothing to remove in ${patch.file}: it was already gone.`);
+      return content;
+    }
+    return content.slice(0, item.index) + content.slice(item.index + item[0].length);
+  }
+
+  if (itemOf(patch.layoutField)) {
+    warn(`${patch.file} already carries this change.`);
+    return content;
+  }
+  const anchor = itemOf(patch.after);
+  if (!anchor) {
+    cannot();
+  }
+  const indent = anchor[1];
+  const block =
+    `${indent}<layoutItems>\n${indent}    <behavior>${patch.behavior || "Edit"}</behavior>\n` +
+    `${indent}    <field>${patch.layoutField}</field>\n${indent}</layoutItems>\n`;
+  const at = anchor.index + anchor[0].length;
+  return content.slice(0, at) + block + content.slice(at);
 }
 
 function applyFiles(scenario) {
