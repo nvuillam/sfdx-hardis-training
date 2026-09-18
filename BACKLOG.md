@@ -18,6 +18,7 @@ for the `Helios Delivery` app, and every one of them is a lab in this course.
 | US-051 | 3 | CI authentication with JWT | You | `features/US-051-ci-authentication` |
 | US-052 | 3 | Total Capacity back on the Installation layout | You | `features/US-052-installation-layout-capacity` |
 | US-053 | 3 | Release notes of the 2026-09 promotion | You | `features/US-053-release-notes-2026-09` |
+| US-054 | 3 | Project documentation | You | `features/US-054-project-documentation` |
 | US-020 | 3 | Refactor InstallationScheduler | Marco Bianchi | `training/mate-us-020-apex-refactor` |
 | US-021 | 2 | Warn the planner when a crew is too small | You | `features/US-021-crew-size-warning` |
 | US-024 | 2 | Crew size becomes mandatory | You | `features/US-024-crew-size-required` |
@@ -28,6 +29,7 @@ for the `Helios Delivery` app, and every one of them is a lab in this course.
 | US-038 | 2 | Tidy the Installation layout | You | `features/US-038-installation-notes-tidy` |
 | US-041 | 2 | Installation handover checklist | You | `features/US-041-handover-checklist` |
 | US-045 | 3 | Cancelled installations can no longer be back-dated | You | `fix/US-045-installation-date-hotfix` |
+| US-046 | 3 | Needs Reinspection status, added in production by an admin | You | `features/US-046-needs-reinspection-status` |
 
 ## The stories in full
 
@@ -168,6 +170,21 @@ Acceptance criteria:
 
 - The notes open with what the release is for
 - The manual steps name who does them
+
+<a id="US-054"></a>
+
+### US-054 - Project documentation
+
+**Owner**: You  
+**Branch**: `features/US-054-project-documentation`  
+**Lab**: 3.10
+
+> As the release manager, I want the project documented from its sources, so that an admin can read what an object or a flow does without opening Setup.
+
+Acceptance criteria:
+
+- The generated pages are in docs/ on integration
+- The Installation page says what an installation is
 
 <a id="US-020"></a>
 
@@ -318,6 +335,21 @@ Acceptance criteria:
 
 - Cancelled installations are exempt from the date rule, like completed ones
 - The rule still refuses to move a planned installation into the past
+
+<a id="US-046"></a>
+
+### US-046 - Needs Reinspection status, added in production by an admin
+
+**Owner**: You  
+**Branch**: `features/US-046-needs-reinspection-status`  
+**Lab**: 3.8
+
+> As the release manager, I want the status an admin added in production to be in the repository, so that the next release does not take it away from the planners.
+
+Acceptance criteria:
+
+- Needs Reinspection is a value of Installation__c.Status__c on integration
+- Nothing else from production came with it
 
 ## The team
 
