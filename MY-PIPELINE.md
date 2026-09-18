@@ -29,7 +29,10 @@ that the next person can see how the pipeline was put together.
   uat, uat into preprod, preprod into main, nothing skips one. main is production. Urgent fixes start
   from preprod, so they never carry what waits in integration and uat. All four branches refuse a
   merge while a check is red.
-- **Lab 3.2, CI authentication**: the date I deleted the `SFDX_AUTH_URL_INTEGRATION` and `SFDX_AUTH_URL_UAT` secrets, and why they should never have been there for a real org.
+- **Lab 3.2, CI authentication**: deleted the SFDX_AUTH_URL_INTEGRATION and SFDX_AUTH_URL_UAT
+  secrets on 2026-09-18. They carried long-lived refresh tokens that could not be rotated, were not
+  scoped, and were tied to one person. All four orgs now authenticate with JWT through an External
+  Client App.
 - **Lab 3.4, Smart Deploy**: what the deployment sent, and what it skipped.
 - **Lab 3.7, DORA**: deployment frequency, lead time, change failure rate, time to restore.
 - **Lab 3.9, monitoring**: the URL of the monitoring repository this created.
