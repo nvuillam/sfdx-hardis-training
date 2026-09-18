@@ -40,6 +40,8 @@ that the next person can see how the pipeline was put together.
   merged them silently, seventy lines apart, so both grants survived and nothing asked me. Checked the
   org rather than trusting that. Sent US-020 back to its author with the compilation error named.
 - **Lab 3.6, promotion to uat**: release notes in release-notes/release-notes-uat-2026-09-18.md
-- **Lab 3.7, DORA**: deployment frequency, lead time, change failure rate, time to restore.
+- **Lab 3.7, DORA**: baseline after the first production release. Deployment frequency 1.7 per
+  week, lead time 0 days, change failure rate 8.3%, time to restore 7.9 hours, rework rate 8.3%.
+  Measured against helios-prod over 90 days.
 - **Lab 3.9, monitoring**: the URL of the monitoring repository this created.
 - **Lab 3.11, release notes**: the link to the release notes I published.
