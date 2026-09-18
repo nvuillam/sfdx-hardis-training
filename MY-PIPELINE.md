@@ -47,5 +47,9 @@ that the next person can see how the pipeline was put together.
   next release does not regress it.
 - **Lab 3.8, retrofit**: took the Needs Reinspection picklist value an admin added in production, put
   it through the pipeline from integration.
-- **Lab 3.9, monitoring**: the URL of the monitoring repository this created.
+- **Lab 3.9, monitoring**: https://github.com/nvuillam/sfdx-hardis-training-monitoring
+  Runs nightly at midnight UTC on helios-prod. Notifications go to email. Silenced: none yet, first
+  report under review.
+- **Lab 3.10, documentation**: generated from the sources into docs/, committed on integration. The
+  nightly monitoring backup regenerates it; the Installation page is kept by hand.
 - **Lab 3.11, release notes**: the link to the release notes I published.
