@@ -279,6 +279,20 @@
       "metadata": ["release-notes/"]
     },
     {
+      "id": "US-054",
+      "level": 3,
+      "lab": 10,
+      "author": "you",
+      "title": "Project documentation",
+      "story": "As the release manager, I want the project documented from its sources, so that an admin can read what an object or a flow does without opening Setup.",
+      "acceptance": [
+        "The generated pages are in docs/ on integration",
+        "The Installation page says what an installation is"
+      ],
+      "branch": "features/US-054-project-documentation",
+      "metadata": ["docs/", "mkdocs.yml"]
+    },
+    {
       "id": "US-020",
       "level": 3,
       "lab": 5,
@@ -426,6 +440,20 @@
       "branch": "fix/US-045-installation-date-hotfix",
       "metadata": ["Installation_Date_Not_Past validation rule"],
       "seededFailure": "The date validation rule exempts Completed installations and not Cancelled ones, so every back-dated cancellation is refused"
+    },
+    {
+      "id": "US-046",
+      "level": 3,
+      "lab": 8,
+      "author": "you",
+      "title": "Needs Reinspection status, added in production by an admin",
+      "story": "As the release manager, I want the status an admin added in production to be in the repository, so that the next release does not take it away from the planners.",
+      "acceptance": [
+        "Needs Reinspection is a value of Installation__c.Status__c on integration",
+        "Nothing else from production came with it"
+      ],
+      "branch": "features/US-046-needs-reinspection-status",
+      "metadata": ["Installation__c.Status__c"]
     }
   ],
   "pullRequests": [
