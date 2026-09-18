@@ -70,7 +70,6 @@ classDef mainObject fill:#FFB3B3,stroke:#A94442,stroke-width:4px,rx:14px,ry:14px
 | Permission Set | User License |
 | :----      | :--: | 
 | [Helios_Delivery_Manager](../permissionsets/Helios_Delivery_Manager.md) | None |
-| [Helios_Delivery_Manager](../permissionsets/Helios_Delivery_Manager.md) | None |
 
 
 [![SFDX-Hardis is provided by Cloudity](https://raw.githubusercontent.com/hardisgroupcom/sfdx-hardis/refs/heads/main/docs/assets/images/cloudity-banner.png)](https://cloudity.com?ref=sfdxhardis)

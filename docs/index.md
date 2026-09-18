@@ -41,7 +41,7 @@ Who is allowed to see what, and who is allowed to do what.
 
 <div class="sfdx-hardis-home-card__links" markdown>
 
-[Permission Sets (6)](permissionsets/index.md)
+[Permission Sets (2)](permissionsets/index.md)
 
 </div>
 
@@ -100,4 +100,4 @@ _Documentation generated from branch features/US-054-project-documentation with 
 
 [![SFDX-Hardis is provided by Cloudity](https://raw.githubusercontent.com/hardisgroupcom/sfdx-hardis/refs/heads/main/docs/assets/images/cloudity-banner.png)](https://cloudity.com?ref=sfdxhardis)
 
-<!-- sfdx-hardis-home-page: 1183d8943516f54b2bbc94ebf2f3b83fd054d700a1c93d782c4103143f520e68 -->
+<!-- sfdx-hardis-home-page: 4eda986a8f2e0ee7c5babe0e451aa0d42b656708870e503459df2255c568e4ef -->

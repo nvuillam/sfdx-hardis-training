@@ -7,7 +7,7 @@
     _Sep 18, 2026, by Nicolas Vuillamy in commit US-041 Installation handover checklist_
 
     
-    ## Flow Diagram
+    ## Flow Diagram [(_View History_)](Installation_Close_Check-history.md)
     
     ```mermaid
     %% If you read this, your Markdown visualizer does not handle MermaidJS syntax.

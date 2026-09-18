@@ -106,7 +106,7 @@ extra:
       link: https://twitter.com/NicolasVuillamy
   generator: false
 nav:
-  - "Home": "index.md"
+  - Home: index.md
   - Objects:
       - All objects: objects/index.md
       - Crew_Capacity__c: objects/Crew_Capacity__c.md

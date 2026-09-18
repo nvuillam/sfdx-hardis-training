@@ -80,10 +80,6 @@ linkStyle 0 stroke:#A6A6A6,stroke-width:2px;
 | Permission Set | User License |
 | :----      | :--: | 
 | [Helios_Delivery_Crew](../permissionsets/Helios_Delivery_Crew.md) | None |
-| [Helios_Delivery_Crew](../permissionsets/Helios_Delivery_Crew.md) | None |
-| [Helios_Delivery_Crew](../permissionsets/Helios_Delivery_Crew.md) | None |
-| [Helios_Delivery_Manager](../permissionsets/Helios_Delivery_Manager.md) | None |
-| [Helios_Delivery_Manager](../permissionsets/Helios_Delivery_Manager.md) | None |
 | [Helios_Delivery_Manager](../permissionsets/Helios_Delivery_Manager.md) | None |
 
 

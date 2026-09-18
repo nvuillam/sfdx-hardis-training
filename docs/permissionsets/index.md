@@ -3,10 +3,6 @@
 | Permission Set | User License |
 | :----      | :--: | 
 | [Helios_Delivery_Crew](Helios_Delivery_Crew.md) | None |
-| [Helios_Delivery_Crew](Helios_Delivery_Crew.md) | None |
-| [Helios_Delivery_Crew](Helios_Delivery_Crew.md) | None |
-| [Helios_Delivery_Manager](Helios_Delivery_Manager.md) | None |
-| [Helios_Delivery_Manager](Helios_Delivery_Manager.md) | None |
 | [Helios_Delivery_Manager](Helios_Delivery_Manager.md) | None |
 
 

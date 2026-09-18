@@ -669,7 +669,7 @@
     _Sep 16, 2026, by Nicolas Vuillamy in commit feat: the Salesforce DevOps with sfdx-hardis training, v1_
 
     
-    ## Flow Diagram
+    ## Flow Diagram [(_View History_)](Installation_Assign_Crew-history.md)
     
     ```mermaid
     %% If you read this, your Markdown visualizer does not handle MermaidJS syntax.
