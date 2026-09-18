@@ -33,7 +33,13 @@ that the next person can see how the pipeline was put together.
   secrets on 2026-09-18. They carried long-lived refresh tokens that could not be rotated, were not
   scoped, and were tied to one person. All four orgs now authenticate with JWT through an External
   Client App.
-- **Lab 3.4, Smart Deploy**: what the deployment sent, and what it skipped.
+- **Lab 3.4, Smart Deploy**: the deployment sent 53 components to change 1. Delta is off on this
+  project, there is no package-no-overwrite file and no deploy-on-change file, so the whole declared
+  package goes every time. The merge job reused the check job's validation as a Quick Deploy.
+- **Lab 3.5, three Pull Requests**: US-019 and US-018 both edited Helios_Delivery_Manager and git
+  merged them silently, seventy lines apart, so both grants survived and nothing asked me. Checked the
+  org rather than trusting that. Sent US-020 back to its author with the compilation error named.
+- **Lab 3.6, promotion to uat**: release notes in release-notes/release-notes-uat-2026-09-18.md
 - **Lab 3.7, DORA**: deployment frequency, lead time, change failure rate, time to restore.
 - **Lab 3.9, monitoring**: the URL of the monitoring repository this created.
 - **Lab 3.11, release notes**: the link to the release notes I published.
