@@ -21,8 +21,10 @@ orgAuthenticationMode: secretsOnly
 # promotion, never by a User Story. Lab 3.1 adds preprod here, for hotfixes.
 availableTargetBranches:
   - integration
+  - preprod
 availableTargetBranchesLabels:
   - "The shared integration org, where every contributor merges"
+  - "Hotfixes on the production version, agreed with the release manager"
 
 # Branch naming for new User Stories
 branchPrefixChoices:
