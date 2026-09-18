@@ -241,3 +241,5 @@ customCommands:
         tooltip: Removes the Helios app and its data from an org, once you are done with the course
         command: node scripts/training.mjs teardown
         helpUrl: https://hardisgroupcom.github.io/sfdx-hardis-training/en/level-3-release-manager/
+listViewsToSetToMine:
+  - force-app/main/default/objects/Installation__c/listViews/My_Open_Installations.listView-meta.xml
