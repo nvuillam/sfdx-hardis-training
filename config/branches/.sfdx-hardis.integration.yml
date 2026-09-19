@@ -8,6 +8,6 @@
 # Client App and JWT.
 
 targetUsername: test-5tjf3ts0qk0x@example.com
-instanceUrl: ""
+instanceUrl: https://test.salesforce.com
 
-mergeTargets: []
+mergeTargets: [uat]
