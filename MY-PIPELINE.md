@@ -43,5 +43,13 @@ that the next person can see how the pipeline was put together.
 - **Lab 3.7, DORA**: baseline after the first production release. Deployment frequency 1.7 per
   week, lead time 0 days, change failure rate 8.3%, time to restore 7.9 hours, rework rate 8.3%.
   Measured against helios-prod over 90 days.
-- **Lab 3.9, monitoring**: the URL of the monitoring repository this created.
+- **Lab 3.8, hotfix**: US-045 shipped through preprod to main, then merged back into integration so the
+  next release does not regress it.
+- **Lab 3.8, retrofit**: took the Needs Reinspection picklist value an admin added in production, put
+  it through the pipeline from integration.
+- **Lab 3.9, monitoring**: https://github.com/nvuillam/sfdx-hardis-training-monitoring
+  Runs nightly at midnight UTC on helios-prod. Notifications go to email. Silenced: none yet, first
+  report under review.
+- **Lab 3.10, documentation**: generated from the sources into docs/, committed on integration. The
+  nightly monitoring backup regenerates it; the Installation page is kept by hand.
 - **Lab 3.11, release notes**: the link to the release notes I published.
