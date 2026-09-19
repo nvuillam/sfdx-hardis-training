@@ -272,6 +272,41 @@
           "left": 1290
         }
       }
+    },
+    {
+      "name": "github-pr-check-failed",
+      "_comment": "Lab 2.2 step 3: the sfdx-hardis comment of a US-021 Pull Request whose flow reads a field the package does not carry. Taken before the fix: the comment is updated in place afterwards.",
+      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/109",
+      "width": 1440,
+      "height": 1800,
+      "settle": 5000,
+      "selector": ".timeline-comment:has-text(\"Deployment check failure\") .comment-body"
+    },
+    {
+      "name": "github-pr-flow-diff",
+      "_comment": "Lab 2.2 step 3: the visual diff sfdx-hardis posts for each Flow a Pull Request changes.",
+      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/109",
+      "width": 1440,
+      "height": 2500,
+      "settle": 8000,
+      "selector": ".timeline-comment:has-text(\"Differences for Flow Installation_Crew_Warning\") .comment-body",
+      "maxHeight": 2250,
+      "evaluate": [
+        "(() => { for (const el of document.querySelectorAll('body *')) { const p = getComputedStyle(el).position; if (p === 'sticky' || p === 'fixed') { el.style.visibility = 'hidden'; } } })()"
+      ]
+    },
+    {
+      "name": "github-pr-deployment-actions",
+      "_comment": "Lab 2.4 step 5: the Deployment Actions comment sfdx-hardis keeps on a Pull Request, after the check of US-026 and before the merge.",
+      "url": "https://github.com/nvuillam/sfdx-hardis-training/pull/111",
+      "width": 1440,
+      "height": 2400,
+      "settle": 5000,
+      "selector": ".timeline-comment:has-text(\"Pending manual actions\") .comment-body",
+      "maxHeight": 1500,
+      "evaluate": [
+        "(() => { for (const el of document.querySelectorAll('body *')) { const p = getComputedStyle(el).position; if (p === 'sticky' || p === 'fixed') { el.style.visibility = 'hidden'; } } })()"
+      ]
     }
   ]
 }

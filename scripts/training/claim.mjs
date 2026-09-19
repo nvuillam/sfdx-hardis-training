@@ -57,6 +57,9 @@ export default async function claim(args) {
   // ---------------------------------------------------------------- the work
   // A level 2 claim re-runs the level 1 audit, and a level 3 claim re-runs both,
   // so the same ground is covered here rather than on a rejected issue.
+  // Read the fork as it is now: a Pull Request merged on GitHub is not in the
+  // local branches until a fetch, and the badge audit reads the fork
+  run("git", ["fetch", "origin", "--prune"], { quiet: true, capture: true });
   const ctx = makeContext(ROOT);
   const missing = [];
   for (const levelDef of levels) {
@@ -134,28 +137,14 @@ export default async function claim(args) {
   }
 
   // ---------------------------------------------------------------- the star
-  // One open source project per level, the ones this course is built on. It
-  // costs a click, it is how these projects stay visible, and the audit checks
-  // it too, so there is no point claiming without it.
-  for (const levelDef of levels) {
-    const star = starOf(levelDef);
-    if (!star || isStarred(star)) {
-      continue;
-    }
+  // A thank-you the learner may give, never a condition of the badge, and never
+  // given for them: GitHub forbids automated or incentivized starring
+  const toStar = levels.map(starOf).filter((star) => star && !isStarred(star));
+  if (toStar.length > 0) {
     info("");
-    info(`  Level ${levelDef.level} asks you to star ${c.bold(star)}, the project it teaches.`);
-    const doIt = await confirm("  Star it now?", true);
-    if (!doIt) {
-      abort(
-        `Level ${levelDef.level} cannot be claimed without starring ${star}.`,
-        `Star it at https://github.com/${star} and claim again.`
-      );
-    }
-    const starred = run("gh", ["api", "--method", "PUT", `user/starred/${star}`, "--silent"], { capture: true, quiet: true });
-    if (starred.code !== 0 || !isStarred(star)) {
-      abort(`${star} could not be starred from here.`, `Star it at https://github.com/${star} and claim again.`);
-    }
-    ok(`Starred ${star}.`);
+    info("  If this course helped you, a star on the project it teaches keeps it visible:");
+    toStar.forEach((star) => info(`    https://github.com/${star}`));
+    info(c.dim("  It is up to you, and the badge does not depend on it."));
   }
 
   // -------------------------------------------------------------- the fields
