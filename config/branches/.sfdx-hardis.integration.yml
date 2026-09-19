@@ -7,7 +7,7 @@
 # a shortcut for throwaway training orgs only. Lab 3.2 replaces it with an External
 # Client App and JWT.
 
-targetUsername: ""
+targetUsername: test-5tjf3ts0qk0x@example.com
 instanceUrl: ""
 
 mergeTargets: []
