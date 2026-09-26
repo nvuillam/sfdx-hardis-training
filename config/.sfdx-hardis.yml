@@ -297,3 +297,4 @@ enablePromotionBranches: true
 allowedPromotionSteps:
   - source: uat
     target: preprod
+monitoringRepository: https://github.com/nvuillam/sfdx-hardis-training-monitoring-0926
