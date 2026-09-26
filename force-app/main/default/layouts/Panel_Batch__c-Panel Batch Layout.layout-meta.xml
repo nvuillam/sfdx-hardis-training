@@ -28,17 +28,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-<<<<<<< HEAD
-=======
-                <field>Warranty_Years__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>Supplier__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
->>>>>>> d234f03 (US-059 Record the supplier of a panel batch (#29))
                 <field>External_Id__c</field>
             </layoutItems>
         </layoutColumns>
