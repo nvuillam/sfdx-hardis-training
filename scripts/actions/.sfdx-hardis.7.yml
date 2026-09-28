@@ -25,7 +25,7 @@ commandsPreDeploy:
     label: Set Email Deliverability to All Email
     type: manual
     command: ""
-    context: process-deployment-only
+    context: all
     parameters:
       instructions: |-
         1. Open **Setup**, type `Deliverability` in the Quick Find box, and open it.
@@ -34,3 +34,4 @@ commandsPreDeploy:
         4. Check: the page reads **All email**. If it already did, there is nothing to do.
     allowFailure: false
     runOnlyOnceByOrg: true
+    when: pre-deploy
