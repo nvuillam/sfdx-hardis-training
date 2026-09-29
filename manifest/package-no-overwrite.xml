@@ -47,6 +47,10 @@
     <members>*</members>
     <name>Report</name>
   </types>
+  <types>
+    <members>Helios_Warehouse</members>
+    <name>RemoteSiteSetting</name>
+  </types>
     <!-- SSO Config must be performed directly in org setup -->
   <types>
       <members>*</members>
