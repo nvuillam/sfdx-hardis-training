@@ -61,6 +61,15 @@ jobs:
             echo "::notice::${BRANCH} has no org in its configuration yet: nothing to deploy"
           fi
       # Login & check deploy with test classes & code coverage
+      # E2E ONLY (fork): sfdx-hardis built from its feature branch, before it is released
+      - name: E2E ONLY - sfdx-hardis from feat/recover-failed-actions
+        run: |
+          git clone --depth 1 -b feat/recover-failed-actions https://github.com/hardisgroupcom/sfdx-hardis.git /tmp/sfdx-hardis
+          cd /tmp/sfdx-hardis
+          npx --yes yarn@1.22.22 install --frozen-lockfile --ignore-scripts --network-timeout 600000
+          npx tsc -p . --pretty
+          sf plugins link /tmp/sfdx-hardis
+          sf plugins
       - name: Login & Process Deployment
         if: ${{ !startsWith(github.ref_name, 'auto-fix/') && steps.pipeline.outputs.ready == 'true' }}
         env:
