@@ -46,6 +46,18 @@ jobs:
           persist-credentials: true
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+      # E2E OVERRIDE, fork only, never committed to the course: replace the released
+      # sfdx-hardis of the container with the unreleased branch feat/readable-pr-comments
+      # (hardisgroupcom/sfdx-hardis#2316), to take the course screenshots of its comments.
+      - name: Override sfdx-hardis with an unreleased branch (e2e only)
+        run: |
+          yarn --version || npm install --global yarn
+          git clone --depth 1 --branch feat/readable-pr-comments https://github.com/hardisgroupcom/sfdx-hardis.git /tmp/sfdx-hardis-e2e
+          cd /tmp/sfdx-hardis-e2e
+          yarn install --frozen-lockfile --ignore-scripts
+          npx tsc -b
+          sf plugins link . 2>/dev/null
+          sf plugins | grep hardis
       # Set env branch variable (github.ref_name seems to not work)
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo "$GITHUB_REF" | cut -d'/' -f 3)" >> "$GITHUB_ENV"
