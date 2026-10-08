@@ -11,6 +11,14 @@ commandsPreDeploy:
     command: ""
     context: all
 commandsPostDeploy:
+  - id: 3f6d0a52-24b1-4c1a-9a0e-5b7f02400001
+    label: Backfill Crew Size on existing installations
+    type: apex
+    parameters:
+      apexScript: scripts/apex/backfill-crew-size.apex
+    command: ""
+    context: process-deployment-only
+    runOnlyOnceByOrg: true
   - id: 5b2e8c71-0a3d-4f6e-9c1b-026000000001
     label: Load crew capacity reference data
     type: data
@@ -28,3 +36,10 @@ commandsPostDeploy:
     command: ""
     context: process-deployment-only
     runOnlyOnceByOrg: true
+  - id: 8d3a1f64-7c2e-4b9a-a041-041000000001
+    label: Load the handover checklist template items
+    type: data
+    parameters:
+      sfdmuProject: HeliosHandoverRefData
+    command: ""
+    context: process-deployment-only
