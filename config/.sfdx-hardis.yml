@@ -313,3 +313,4 @@ customCommands:
         tooltip: Removes the Helios app and its data from an org, once you are done with the course
         command: node scripts/training.mjs teardown
         helpUrl: https://sfdx-hardis-training.github.io/en/level-3-release-manager/
+monitoringRepository: https://github.com/nvuillam/sfdx-hardis-training-monitoring-run5
