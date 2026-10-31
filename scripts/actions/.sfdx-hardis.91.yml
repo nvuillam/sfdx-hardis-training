@@ -1,0 +1,35 @@
+commandsPostDeploy:
+  - id: 6434eb50-002c-4759-b1a9-a0ca6942909e
+    label: Load crew capacity reference data
+    type: data
+    command: ""
+    context: process-deployment-only
+    parameters:
+      sfdmuProject: HeliosCrewRefData
+    allowFailure: false
+    runOnlyOnceByOrg: true
+  - id: d7dec67c-fb3a-47d8-b61a-015ee2163fb0
+    label: Schedule the nightly crew capacity recalculation
+    type: schedule-batch
+    command: ""
+    context: process-deployment-only
+    parameters:
+      className: CrewCapacityBatch
+      cronExpression: 0 0 2 * * ?
+      jobName: Helios crew capacity nightly
+    allowFailure: false
+    runOnlyOnceByOrg: true
+commandsPreDeploy:
+  - id: 6ad95b95-d168-460e-bd47-e2031f70ff3c
+    label: Set Email Deliverability to All Email
+    type: manual
+    command: ""
+    context: all
+    parameters:
+      instructions: |-
+        1. Open **Setup**, type `Deliverability` in the Quick Find box, and open it.
+        2. Under **Access to Send Email**, set **Access level** to **All email**.
+        3. Click **Save**.
+        4. Check: the page reads **All email**. If it already did, there is nothing to do.
+    allowFailure: false
+    runOnlyOnceByOrg: true
