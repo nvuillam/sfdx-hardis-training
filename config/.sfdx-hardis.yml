@@ -28,6 +28,7 @@ availableTargetBranchesLabels:
   - "The shared integration org, where every contributor merges"
   - "Hotfixes on the production version, agreed with the release manager"
 enablePromotionBranches: true
+monitoringRepository: https://github.com/nvuillam/sfdx-hardis-training-monitoring-run8
 allowedPromotionSteps:
   - source: uat
     target: preprod
