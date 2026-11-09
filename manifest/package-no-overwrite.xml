@@ -78,4 +78,8 @@
     <name>WaveXmd</name>
   </types>
   <version>59.0</version>
+  <types>
+      <members>Helios_Warehouse</members>
+      <name>RemoteSiteSetting</name>
+  </types>
 </Package>
